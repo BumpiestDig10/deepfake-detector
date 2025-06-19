@@ -2,7 +2,8 @@
 
 ```bash
 $ python -m venv venv
-$ source venv/bin/activate
+$ source venv/bin/activate  # Linux
+$ venv/Scripts/activate     # Windows
 $ pip install -r requirements.txt
 $ cd src/
 $ python metadata_parser.py --dir path/to/files -vv
