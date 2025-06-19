@@ -27,11 +27,7 @@ $~$
 
 
 _TODO:_ (No particular order)
-1. Add batch processing to Feature Extractor.
-2. Save results of Feature Extractor in a .csv file.
-3. Integrate Metadata Parser with Feature Extractor.
-4. Create Feature Extractor for other file types and integrate everything as one single unified tool.
-5. _Fix:_
-5.1. Feature Extractor in Kali Linux is ending up in a dependency issue - tensorflow
-5.2. Metadata Extractor in Windows 11 is ending up in a dependency issue - python-magic
-6. Start working on the Detector itself.
+1. Create Feature Extractor for other file types and integrate everything as one single unified tool.
+2. _Fix:_
+2.1. Feature Extractor in Kali Linux is ending up in a dependency issue - tensorflow
+3. Start working on the Detector itself.

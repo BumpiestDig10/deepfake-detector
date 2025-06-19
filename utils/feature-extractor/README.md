@@ -6,7 +6,5 @@ $ source venv/bin/activate  # Linux
 $ venv/Scripts/activate     # Windows
 $ pip install -r requirements.txt
 $ cd src/
-$ python feature_extractor.py
+$ python image_feature_extractor.py --dir "path/to/image_files"
 ```
-
-Open a browser and go to [127.0.0.1:5000](127.0.0.1:5000)

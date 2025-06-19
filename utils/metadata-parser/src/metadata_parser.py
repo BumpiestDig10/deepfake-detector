@@ -370,7 +370,7 @@ def process_directory_to_csv(directory: str, output_csv: str, verbosity: int):
     logging.info(f"Writing {len(all_results)} records to {output_csv}")
     try:
         with open(output_csv, 'w', newline='', encoding='utf-8') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=sorted_fieldnames, extrasaction='ignore')
+            writer = csv.DictWriter(csvfile, fieldnames=sorted_fieldnames, extrasaction='ignore', escapechar='\\')
             writer.writeheader()
             writer.writerows(all_results)
         logging.info(f"Successfully created metadata CSV file at {os.path.abspath(output_csv)}")
@@ -394,8 +394,8 @@ if __name__ == '__main__':
     parser.add_argument(
         '--output',
         type=str,
-        default="../results/metadata_results.csv",
-        help="Path to save the output CSV file.\n(Default: extraction_results/metadata_results.csv)"
+        default=os.path.join('..', 'results', f"metadata_{time.strftime('%Y%m%d_%H%M%S')}.csv"),
+        help="Path to save the output CSV file.\n(Default: ../results/metadata_[timestamp].csv)"
     )
     parser.add_argument(
         '-v', '--verbose',
@@ -427,4 +427,3 @@ if __name__ == '__main__':
     print(f"      Check '{os.path.abspath(output_csv_file)}' for results.")
     print(f"      A detailed log file has been saved in the ../logs/ directory.")
     print("="*70 + "\n")
-
