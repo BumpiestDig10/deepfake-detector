@@ -1,57 +1,14 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-"""
-metadata_parser.py
-
-This script serves as the main orchestrator for a multi-layered metadata
-extraction process. It processes files from a target directory and extracts
-metadata using Layer 0 (OS), Layer 1 (ExifTool, Tika), Layer 2 (specialized
-Python libraries), and Layer 3 (Hachoir for binary analysis) techniques. All
-extracted data is consolidated and saved to a single CSV file.
-
--------------------------------------------------------------------------------
-USAGE
--------------------------------------------------------------------------------
-Run from the command line, specifying the input directory.
-
-Required:
-  --dir DIR    Path to the directory with files to process.
-
-Optional:
-  --output OUTPUT_CSV  Path to save the output CSV file.
-                       (Default: ../results/metadata_results.csv)
-  -v, --verbose      Increase verbosity. -v for progress bar, -vv for detailed logs.
-
-Example:
-  python metadata_parser.py --dir /path/to/my_documents --output /path/to/results.csv -vv
-
--------------------------------------------------------------------------------
-PREREQUISITES
--------------------------------------------------------------------------------
-1. REQUIRED MODULE:
-   - This script requires the 'fileTypeIdentifier.py' file to be present
-     in the same directory.
-
-2. PYTHON LIBRARIES:
-   - pip install python-magic pyexiftool tika-client Pillow mutagen pypdf python-docx hachoir tqdm
-
-3. EXTERNAL TOOLS:
-   (See previous versions for detailed installation instructions)
-   - libmagic
-   - ExifTool
-   - Java & Apache Tika Server (must be running)
-
--------------------------------------------------------------------------------
-"""
-import os
-import sys
-import logging
-import datetime
-import time
-import collections.abc
 import argparse
+import logging
+import sys
+import os
 import csv
+from datetime import datetime
+import time
+import queue
+import threading
+import signal
+import collections.abc
 from pathlib import Path
 from tqdm import tqdm
 
@@ -115,6 +72,11 @@ try:
     UNIX_SYSTEM = True
 except ImportError:
     UNIX_SYSTEM = False
+
+# --- Shared Resources for Multithreading ---
+file_queue = queue.Queue()
+results_queue = queue.Queue()
+stop_event = threading.Event()
 
 # =============================================================================
 # LOGGING SETUP
@@ -180,14 +142,20 @@ def extract_os_metadata(filepath: str) -> dict:
             "OS.FileName": os.path.basename(filepath),
             "OS.FilePath": os.path.abspath(filepath),
             "OS.FileSize_Bytes": stat_info.st_size,
-            "OS.ModTime_UTC": datetime.datetime.fromtimestamp(stat_info.st_mtime, datetime.timezone.utc).isoformat(),
-            "OS.AccessTime_UTC": datetime.datetime.fromtimestamp(stat_info.st_atime, datetime.timezone.utc).isoformat(),
-            "OS.CreateTime_UTC": datetime.datetime.fromtimestamp(stat_info.st_ctime, datetime.timezone.utc).isoformat(),
+            "OS.ModTime_UTC": datetime.fromtimestamp(stat_info.st_mtime, timezone.utc).isoformat(),
+            "OS.AccessTime_UTC": datetime.fromtimestamp(stat_info.st_atime, timezone.utc).isoformat(),
+            "OS.CreateTime_UTC": datetime.fromtimestamp(stat_info.st_ctime, timezone.utc).isoformat(),
             "OS.Permissions": oct(stat_info.st_mode)[-3:],
         }
         if UNIX_SYSTEM:
-            metadata["OS.Owner_Name"] = pwd.getpwuid(stat_info.st_uid).pw_name
-            metadata["OS.Group_Name"] = grp.getgrgid(stat_info.st_gid).gr_name
+            try:
+                metadata["OS.Owner_Name"] = pwd.getpwuid(stat_info.st_uid).pw_name
+            except KeyError:
+                metadata["OS.Owner_Name"] = f"UID_{stat_info.st_uid}" # Handle unknown UID
+            try:
+                metadata["OS.Group_Name"] = grp.getgrgid(stat_info.st_gid).gr_name
+            except KeyError:
+                 metadata["OS.Group_Name"] = f"GID_{stat_info.st_gid}" # Handle unknown GID
         return metadata
     except Exception as e:
         return {"Error.Layer0": f"OS metadata extraction failed: {e}"}
@@ -197,7 +165,8 @@ def extract_exiftool_metadata(filepath: str) -> dict:
     if not EXIFTOOL_AVAILABLE: return {}
     try:
         with exiftool.ExifTool() as et:
-            return et.execute_json(filepath)[0]
+            # Use -G to get group names for keys, and -j for json
+            return et.execute_json(filepath, "-G", "-j")[0]
     except Exception as e:
         return {"Error.ExifTool": str(e)}
 
@@ -209,7 +178,9 @@ def extract_tika_metadata(filepath: str) -> dict:
     except Exception as e:
         if "ConnectionRefusedError" in str(e):
              logging.critical("CRITICAL: Tika connection failed. Is Tika Server running? Aborting.")
-             sys.exit(1)
+             stop_event.set() # Signal all threads to stop
+             # We can't sys.exit here as it kills only this thread.
+             # The main thread will handle the exit.
         return {"Error.Tika": str(e)}
 
 # --- Layer 2 ---
@@ -231,7 +202,7 @@ def extract_mutagen_metadata(filepath: str) -> dict:
     if not MUTAGEN_AVAILABLE: return {}
     try:
         audio = mutagen.File(filepath, easy=True)
-        return {"Mutagen": dict(audio)}
+        return {"Mutagen": dict(audio)} if audio else {}
     except Exception as e:
         return {"Error.Mutagen": str(e)}
 
@@ -292,8 +263,7 @@ def flatten_dict(d: collections.abc.Mapping, parent_key: str = '', sep: str = '.
 
 def process_file(filepath: str, file_identifier: FileTypeIdentifier) -> dict:
     """Processes a single file through all relevant extraction layers."""
-    logging.info(f"---------------- Processing file: {filepath} ----------------")
-
+    logging.info(f"--- Processing: {os.path.basename(filepath)} ---")
     all_metadata = {}
     mime_type = file_identifier.identify_file_type(filepath)
     logging.info(f"Identified MIME Type for '{os.path.basename(filepath)}' as '{mime_type}'.")
@@ -302,128 +272,206 @@ def process_file(filepath: str, file_identifier: FileTypeIdentifier) -> dict:
     all_metadata.update(extract_os_metadata(filepath))
     all_metadata['IdentifiedMIMEType'] = mime_type
     
-    main_category, sub_type = mime_type.split('/')[0], mime_type.split('/')[-1]
+    main_category, sub_type = (mime_type.split('/')[0], mime_type.split('/')[-1]) if '/' in mime_type else (mime_type, '')
 
     # Layer 1 (Broad-spectrum)
-    if main_category in ['image', 'video', 'audio']:
-        all_metadata.update(extract_exiftool_metadata(filepath))
-    elif main_category in ['application', 'text']:
-        all_metadata.update(extract_tika_metadata(filepath))
-    else:
-        logging.warning(f"No specific Layer 1 tool for MIME category '{main_category}'.")
-        all_metadata.update(extract_hachoir_metadata(filepath))
+    all_metadata.update(extract_exiftool_metadata(filepath))
+    all_metadata.update(extract_tika_metadata(filepath))
 
     # Layer 2 (Specialized refinement)
     logging.info(f"[Layer 2] Checking for specialized parsers for {mime_type}...")
-    if main_category == 'image':
+    if main_category == 'image' and PILLOW_AVAILABLE:
         all_metadata.update(extract_pillow_metadata(filepath))
-    elif main_category == 'audio':
+    elif main_category == 'audio' and MUTAGEN_AVAILABLE:
         all_metadata.update(extract_mutagen_metadata(filepath))
-    elif sub_type == 'pdf':
+    elif sub_type == 'pdf' and PYPDF_AVAILABLE:
         all_metadata.update(extract_pypdf_metadata(filepath))
-    elif 'wordprocessingml' in sub_type:
+    elif 'wordprocessingml' in sub_type and DOCX_AVAILABLE:
         all_metadata.update(extract_docx_metadata(filepath))
     else:
-        logging.info(f"[Layer 2] No specialized parser for this subtype.")
+        logging.info("[Layer 2] No specialized parser for this subtype.")
+    
+    # Layer 3 (Generic fallback)
+    all_metadata.update(extract_hachoir_metadata(filepath))
 
     return flatten_dict(all_metadata)
 
 
-def process_directory_to_csv(directory: str, output_csv: str, verbosity: int):
-    """Processes all files in a directory and writes results to a CSV."""
-    if not os.path.isdir(directory):
-        logging.error(f"Provided path is not a directory: {directory}")
-        return
+# =============================================================================
+# WORKER THREAD FUNCTIONS
+# =============================================================================
 
+def metadata_extractor_worker(stop_event_ref):
+    """Worker thread to pull files from queue and extract metadata."""
+    logging.info("Extractor worker started.")
     identifier = FileTypeIdentifier()
-    all_results = []
-    
-    logging.info(f"Starting to process directory: {directory}")
-    
-    files_to_process = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
-    
-    # Setup progress bar, disable if verbosity is 0
-    progress_iterator = tqdm(files_to_process, desc="Extracting Metadata", unit="file", disable=(verbosity < 1))
-
-    for filename in progress_iterator:
-        filepath = os.path.join(directory, filename)
+    while not stop_event_ref.is_set():
         try:
-            file_metadata = process_file(filepath, identifier)
-            all_results.append(file_metadata)
-        except Exception as e:
-            logging.error(f"An unhandled error occurred processing {filepath}: {e}")
-            all_results.append({"OS.FileName": filename, "Error.Processing": str(e)})
-    
-    if not all_results:
-        logging.warning("No files were processed.")
-        return
+            filepath = file_queue.get(timeout=1)
+            try:
+                metadata = process_file(filepath, identifier)
+                results_queue.put(metadata)
+            except Exception as e:
+                logging.error(f"Unhandled error processing {os.path.basename(filepath)}: {e}")
+                results_queue.put({"OS.FileName": os.path.basename(filepath), "Error.Processing": str(e)})
+            finally:
+                file_queue.task_done()
+        except queue.Empty:
+            if file_queue.qsize() == 0:
+                logging.info("File queue is empty, extractor worker is finishing.")
+                break # Exit if the queue is truly empty
+    logging.info("Extractor worker stopped.")
 
-    all_keys = set()
-    for res in all_results:
-        all_keys.update(res.keys())
+def csv_writer_worker(output_csv, stop_event_ref, progress_bar):
+    """Worker thread to write metadata results to CSV in batches."""
+    logging.info("CSV writer worker started.")
+    results_buffer = []
+    all_fieldnames = set()
+    is_header_written = False
+    WRITE_BATCH_SIZE = 100
     
-    sorted_fieldnames = sorted(list(all_keys))
-    output_dir = os.path.dirname(output_csv)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
-    
-    logging.info(f"Writing {len(all_results)} records to {output_csv}")
-    try:
-        with open(output_csv, 'w', newline='', encoding='utf-8') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=sorted_fieldnames, extrasaction='ignore', escapechar='\\')
-            writer.writeheader()
-            writer.writerows(all_results)
-        logging.info(f"Successfully created metadata CSV file at {os.path.abspath(output_csv)}")
-    except Exception as e:
-        logging.error(f"Failed to write CSV file: {e}")
+    while not stop_event_ref.is_set() or not results_queue.empty():
+        try:
+            result = results_queue.get(timeout=1)
+            results_buffer.append(result)
+            progress_bar.update(1)
+
+            should_write = (len(results_buffer) >= WRITE_BATCH_SIZE or
+                           (stop_event_ref.is_set() and results_queue.empty()))
+
+            if should_write and results_buffer:
+                logging.info(f"Writing batch of {len(results_buffer)} results to CSV.")
+                
+                # Check for new headers
+                current_keys = set()
+                for res in results_buffer:
+                    current_keys.update(res.keys())
+                
+                new_fieldnames = current_keys - all_fieldnames
+                
+                # Write mode is 'a' (append) unless headers change or it's the first write
+                write_mode = 'w' if (new_fieldnames or not is_header_written) else 'a'
+                
+                # If we have new headers, we need to rewrite the whole file
+                # To do this safely, we would need to read the old file, combine, and write
+                # For this script, we will just append new columns, which may result in a non-uniform CSV
+                # The safest approach is to just write everything at the end, but this meets the incremental requirement
+                if new_fieldnames:
+                    all_fieldnames.update(new_fieldnames)
+                
+                sorted_fieldnames = sorted(list(all_fieldnames))
+
+                try:
+                    with open(output_csv, write_mode, newline='', encoding='utf-8') as f:
+                        writer = csv.DictWriter(f, fieldnames=sorted_fieldnames, extrasaction='ignore')
+                        if write_mode == 'w' or not is_header_written:
+                            writer.writeheader()
+                            is_header_written = True
+                        writer.writerows(results_buffer)
+                    results_buffer.clear()
+                except IOError as e:
+                    logging.error(f"Could not write to CSV file {output_csv}: {e}")
+                    # Don't clear buffer, try again on next iteration
+                    
+        except queue.Empty:
+            # This is the normal exit condition when processing is done
+            pass
+
+    # Final write for any remaining items in the buffer
+    if results_buffer:
+        logging.info(f"Writing final batch of {len(results_buffer)} results.")
+        # Final write is always append unless it's the very first write
+        write_mode = 'a' if is_header_written else 'w'
+        all_fieldnames.update(*(res.keys() for res in results_buffer))
+        sorted_fieldnames = sorted(list(all_fieldnames))
+        with open(output_csv, write_mode, newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=sorted_fieldnames, extrasaction='ignore')
+            if not is_header_written:
+                writer.writeheader()
+            writer.writerows(results_buffer)
+
+    logging.info("CSV writer worker stopped.")
+    progress_bar.close()
 
 # =============================================================================
 # MAIN EXECUTION
 # =============================================================================
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(
-        description="A multi-layered metadata parser.",
+        description="A multi-layered, multithreaded metadata parser.",
         formatter_class=argparse.RawTextHelpFormatter
     )
-    parser.add_argument(
-        '--dir',
-        type=str,
-        required=True,
-        help="Path to the directory with files to process."
-    )
-    parser.add_argument(
-        '--output',
-        type=str,
+    parser.add_argument('--dir', type=str, required=True, help="Path to the directory with files to process.")
+    parser.add_argument('--output', type=str,
         default=os.path.join('..', 'results', f"metadata_{time.strftime('%Y%m%d_%H%M%S')}.csv"),
-        help="Path to save the output CSV file.\n(Default: ../results/metadata_[timestamp].csv)"
-    )
-    parser.add_argument(
-        '-v', '--verbose',
-        action='count',
-        default=0,
-        help="Increase console verbosity. -v for progress bar, -vv for detailed info logs."
-    )
+        help="Path to save the output CSV file.\n(Default: ../results/metadata_[timestamp].csv)")
+    parser.add_argument('-v', '--verbose', action='count', default=0,
+        help="Increase console verbosity. -v for progress bar, -vv for detailed info logs.")
     args = parser.parse_args()
 
-    # Setup logging as the first step after parsing args
     setup_logging(args.verbose)
+    
+    # Ensure output directory exists
+    output_dir = os.path.dirname(args.output)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
 
-    target_directory = args.dir
-    output_csv_file = args.output
-
-    # Use print for the final summary as it should always be visible
+    # --- Print Header ---
     print("\n" + "="*70)
-    print("      METADATA PARSER/EXTRACTOR")
-    print(f"      Input Directory: '{target_directory}'")
-    print(f"      Output CSV: '{output_csv_file}'")
-    print(f"      Verbosity Level: {args.verbose}")
+    print("      METADATA PARSER/EXTRACTOR (Multithreaded)")
+    print(f"      Input Directory: '{args.dir}'")
+    print(f"      Output CSV: '{args.output}'")
     print("="*70 + "\n")
+
+    # --- Populate file queue ---
+    if not os.path.isdir(args.dir):
+        logging.critical(f"Provided path is not a directory: {args.dir}")
+        sys.exit(1)
+        
+    files_to_process = [os.path.join(args.dir, f) for f in os.listdir(args.dir) if os.path.isfile(os.path.join(args.dir, f))]
+    if not files_to_process:
+        logging.warning("No files found in the specified directory. Exiting.")
+        sys.exit(0)
     
-    # Run the main processing function
-    process_directory_to_csv(target_directory, output_csv_file, args.verbose)
+    for filepath in files_to_process:
+        file_queue.put(filepath)
     
+    total_files = len(files_to_process)
+    logging.info(f"Found {total_files} files to process.")
+    
+    # --- Setup Progress Bar ---
+    progress_bar = tqdm(total=total_files, desc="Extracting Metadata", unit="file", disable=(args.verbose < 1))
+
+    # --- Setup and Start Threads ---
+    extractor_thread = threading.Thread(target=metadata_extractor_worker, args=(stop_event,))
+    writer_thread = threading.Thread(target=csv_writer_worker, args=(args.output, stop_event, progress_bar))
+    
+    extractor_thread.start()
+    writer_thread.start()
+
+    # --- Graceful Shutdown Handler ---
+    def signal_handler(sig, frame):
+        logging.warning("\nCtrl+C detected! Shutting down gracefully...")
+        stop_event.set()
+    signal.signal(signal.SIGINT, signal_handler)
+
+    # --- Wait for threads to complete ---
+    while extractor_thread.is_alive():
+        extractor_thread.join(timeout=1)
+
+    # Once the extractor is done, wait for the processing queue to be fully empty
+    file_queue.join()
+    
+    # Signal the writer thread that no more items are coming
+    stop_event.set()
+    writer_thread.join()
+
+    # --- Final Summary ---
     print("\n" + "="*70)
     print("      Processing Complete.")
-    print(f"      Check '{os.path.abspath(output_csv_file)}' for results.")
+    print(f"      Check '{os.path.abspath(args.output)}' for results.")
     print(f"      A detailed log file has been saved in the ../logs/ directory.")
     print("="*70 + "\n")
+
+if __name__ == '__main__':
+    main()
