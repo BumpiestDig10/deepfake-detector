@@ -7,3 +7,6 @@ utils/feature-extractor/results/
 dataset/
 notebooks/.ipynb_checkpoints/
 *.csv
+*.doc
+*.docx
+*.pdf
