@@ -1,2 +1,2 @@
 real --> 1
-fake --> 0
+fake --> 2
