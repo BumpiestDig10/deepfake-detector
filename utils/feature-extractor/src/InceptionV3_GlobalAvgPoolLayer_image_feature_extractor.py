@@ -152,12 +152,13 @@ def write_features_to_csv(csv_path: str, features: List[np.ndarray],
             # Write header only for new files
             if mode == 'w':
                 feature_size = len(features[0]) if features else 2048  # Default Inception V3 size
-                header = ['image_path'] + [f'feature_{i}' for i in range(feature_size)]
+                header = ['file_name'] + [f'feature_{i}' for i in range(feature_size)]
                 writer.writerow(header)
 
             # Write features
             for img_path, feature_vector in zip(image_paths, features):
-                row = [img_path] + feature_vector.tolist()
+                filename = Path(img_path).name  # Use only the filename
+                row = [filename] + feature_vector.tolist()
                 writer.writerow(row)
 
         print(f"Successfully wrote {len(features)} feature vectors to {csv_path}")

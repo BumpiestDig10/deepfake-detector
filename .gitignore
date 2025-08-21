@@ -11,3 +11,4 @@ notebooks/.ipynb_checkpoints/
 *.docx
 *.pdf
 models/info.txt
+*.html
