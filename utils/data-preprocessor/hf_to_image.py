@@ -4,8 +4,8 @@ import json
 from datasets import load_dataset
 
 # Load the dataset
-dataset = load_dataset('JamieWithofs/Deepfake-and-real-images-4', split='train') 
-output_dir = "./Deepfake-and-real-images-4"
+dataset = load_dataset('mkhLlamaLearn/dfdcpics2', split='train') 
+output_dir = "D:/02_Deepfake/dfdcpics2"
 os.makedirs(output_dir, exist_ok=True)
 
 # Prepare metadata files

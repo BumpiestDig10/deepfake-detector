@@ -1,5 +1,6 @@
 # DEEPFAKE DETECTION
 
+Documentation is loosely updated.
 ```bash
 $ git clone https://github.com/BumpiestDig10/deepfake-detector.git
 $ python -m venv venv
@@ -28,6 +29,8 @@ $~$
 
 _TODO:_ (No particular order)
 1. Create Feature Extractor for other file types and integrate everything as one single unified tool.
-2. _Fix:_
+2. Fix:
 2.1. Feature Extractor in Kali Linux is ending up in a dependency issue - tensorflow
 3. Start working on the Detector itself.
+3.1. Check out RNN for video detection.
+4. Create a pipeline to generate deepfakes.
