@@ -12,7 +12,7 @@ from pathlib import Path
 from tqdm import tqdm
 
 import centralLogging as centralLogging
-logger = centralLogging.get_logger(console_level="DEBUG", file_level="WARNING")
+logger = centralLogging.get_logger(console_level="DEBUG", file_level="INFO")
 
 # --- Shared Resources for Multithreading ---
 file_queue = queue.Queue()
@@ -23,7 +23,7 @@ stop_event = threading.Event()
 
 # Custom Module
 try:
-    from utils.metadata.src.fileTypeIdentifier import FileTypeIdentifier
+    from utils.metadata.fileTypeIdentifier import FileTypeIdentifier
 except ImportError:
     logger.critical("CRITICAL ERROR: Could not import 'FileTypeIdentifier'. Make sure 'fileTypeIdentifier.py' is in the same directory.")
     sys.exit(1)

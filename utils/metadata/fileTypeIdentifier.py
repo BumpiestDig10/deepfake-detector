@@ -28,7 +28,7 @@ import os
 import centralLogging as centralLogging
 
 # --- Configuration for Logging ---
-logger = centralLogging.get_logger(console_level="DEBUG", file_level="WARNING")
+logger = centralLogging.get_logger(console_level="DEBUG", file_level="INFO")
 
 # --- Attempt to import the magic library ---
 try:
