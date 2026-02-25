@@ -37,12 +37,11 @@ try:
     logger.info("Successfully imported the 'magic' library. Will use it for file type identification.")
 except ImportError:
     MAGIC_AVAILABLE = False
-    logger.warning("The 'magic' library is not installed. Falling back to file extension-based identification.")
-    logger.warning("For more accurate results, please install python-magic and its dependency, libmagic.")
+    logger.warning("The 'magic' library is not installed. Falling back to file extension-based identification. For more accurate results, please install python-magic and its dependency, libmagic.")
 except Exception as e:
     MAGIC_AVAILABLE = False
     logger.error(f"An unexpected error occurred while importing 'magic': {e}")
-    logger.error("Proceeding with fallback to file extension-based identification.")
+    logger.warning("Proceeding with fallback to file extension-based identification.")
 
 
 class FileTypeIdentifier:
@@ -108,7 +107,8 @@ class FileTypeIdentifier:
             return None
         try:
             mime_type = magic.from_file(filepath, mime=True)
-            logger.debug(f"Magic identified '{filepath}' as '{mime_type}'.")
+            mime_type_false = magic.from_file(filepath, mime=False)
+            logger.debug(f"Magic identified '{filepath}' as '{mime_type}' and non-mime identified as '{mime_type_false}'.")
             return mime_type
         except magic.MagicException as e:
             logger.error(f"A magic-related error occurred for '{filepath}': {e}")

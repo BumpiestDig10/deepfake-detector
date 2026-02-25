@@ -25,7 +25,7 @@ stop_event = threading.Event()
 try:
     from utils.metadata.fileTypeIdentifier import FileTypeIdentifier
 except ImportError:
-    logger.critical("CRITICAL ERROR: Could not import 'FileTypeIdentifier'. Make sure 'fileTypeIdentifier.py' is in the same directory.")
+    logger.critical("CRITICAL ERROR: Could not import 'FileTypeIdentifier'. Make sure 'fileTypeIdentifier.py' is in 'utils/metadata/' directory.")
     sys.exit(1)
 
 # Layer 1 Tools
@@ -47,6 +47,7 @@ except ImportError:
 try:
     from PIL import Image, ExifTags
     PILLOW_AVAILABLE = True
+    logger.info("Pillow library found. Layer 2 image extraction enabled.")
 except ImportError:
     PILLOW_AVAILABLE = False
     logger.warning("Pillow not found. Layer 2 image extraction skipped.")
@@ -54,6 +55,7 @@ except ImportError:
 try:
     import mutagen
     MUTAGEN_AVAILABLE = True
+    logger.info("Mutagen library found. Layer 2 audio extraction enabled.")
 except ImportError:
     MUTAGEN_AVAILABLE = False
     logger.warning("Mutagen not found. Layer 2 audio extraction skipped.")
@@ -61,6 +63,7 @@ except ImportError:
 try:
     from pypdf import PdfReader
     PYPDF_AVAILABLE = True
+    logger.info("PyPDF library found. Layer 2 PDF extraction enabled.")
 except ImportError:
     PYPDF_AVAILABLE = False
     logger.warning("pypdf not found. Layer 2 PDF extraction skipped.")
@@ -68,6 +71,7 @@ except ImportError:
 try:
     import docx
     DOCX_AVAILABLE = True
+    logger.info("python-docx library found. Layer 2 DOCX extraction enabled.")
 except ImportError:
     DOCX_AVAILABLE = False
     logger.warning("python-docx not found. Layer 2 DOCX extraction skipped.")
@@ -77,6 +81,7 @@ try:
     import hachoir.metadata
     import hachoir.stream
     HACHOIR_AVAILABLE = True
+    logger.info("Hachoir library found. Layer 3 binary analysis enabled.")
 except ImportError:
     HACHOIR_AVAILABLE = False
     logger.warning("hachoir not found. Layer 3 binary analysis skipped.")
@@ -86,6 +91,7 @@ try:
     import pwd
     import grp
     UNIX_SYSTEM = True
+    logger.info("UNIX-like system detected. File owner/group names will be extracted.")
 except ImportError:
     UNIX_SYSTEM = False
     logger.info("Not a UNIX-like system. File owner/group names not extracted.")
@@ -249,7 +255,7 @@ def process_file(filepath: str, file_identifier: FileTypeIdentifier) -> dict:
     elif 'wordprocessingml' in sub_type and DOCX_AVAILABLE:
         all_metadata.update(extract_docx_metadata(filepath))
     else:
-        logger.info("[Layer 2] No specialized parser for this subtype.")
+        logger.warning("[Layer 2] No specialized parser for this subtype.")
     
     # Layer 3 (Generic fallback)
     all_metadata.update(extract_hachoir_metadata(filepath))
@@ -374,11 +380,10 @@ def main():
         os.makedirs(output_dir, exist_ok=True)
 
     # --- Print Header ---
-    print("\n" + "="*70)
-    print("      METADATA PARSER/EXTRACTOR (Multithreaded)")
-    print(f"      Input Directory: '{args.input}'")
-    print(f"      Output CSV: '{args.output}'")
-    print("="*70 + "\n")
+    logger.info("="*70 + "\n")
+    logger.info(f"Input Directory: '{args.input}'")
+    logger.info(f"Output CSV: '{args.output}'")
+    logger.info("="*70 + "\n")
 
     # --- Populate file queue ---
     if not os.path.isdir(args.input):
@@ -424,11 +429,10 @@ def main():
     writer_thread.join()
 
     # --- Final Summary ---
-    print("\n" + "="*70)
-    print("      Processing Complete.")
-    print(f"      Check '{os.path.abspath(args.output)}' for results.")
-    print(f"      A detailed log file has been saved in the ../logs/ directory.")
-    print("="*70 + "\n")
-
+    logger.info("="*70 + "\n")
+    logger.info("Processing Complete.")
+    logger.info(f"Check '{os.path.abspath(args.output)}' for results.")
+    logger.info(f"A detailed log file has been saved in the ../logs/ directory.")
+    logger.info("="*70 + "\n")
 if __name__ == '__main__':
     main()

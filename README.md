@@ -11,7 +11,7 @@ $ pip install -r allRequirements.txt
 $~$
 To run the Metadata Parser:
 ```bash
-python -m utils.metadata.metadata_parser --input "path/to/input_files" --output "(OPTIONAL) path/to/output_files"
+python -m utils.metadata.metadata_parser --input "path/to/input_directory" --output "(OPTIONAL) path/to/output_file"
 ```
 
 $~$
