@@ -9,28 +9,18 @@ $ venv/Scripts/activate     # Windows
 $ pip install -r allRequirements.txt
 ```
 
+To run the Metadata Parser
+```bash
+python -m utils.metadata.src.metadata_parser --input "path/to/input_files" --output "(OPTIONAL) path/to/output_files"
+```
+
 $~$
 
-> $~$
-> **_NOTE 1:_**
-> You do not need to run the following commands for each sub-project individually if you run those listed above.
-> ```bash
-> $ python -m venv venv
-> $ pip install -r requirements.txt
-> ```
-> $~$
-
-> $~$
-> **_NOTE 2:_**
-> 1. Metadata Extractor/Parser works well in Kali Linux (at least).
-> 2. Feature Extractor works in Windows 11 (at least) - some edits to be made (check _TODO_).
-> $~$
-
-
-_TODO:_ (No particular order)
-1. Create Feature Extractor for other file types and integrate everything as one single unified tool.
-2. Fix:
-2.1. Feature Extractor in Kali Linux is ending up in a dependency issue - tensorflow
-3. Start working on the Detector itself.
-3.1. Check out RNN for video detection.
-4. Create a pipeline to generate deepfakes.
+### TODO: (for images branch)
+1. Integrate Central Logging.
+2. Merge metadata extractor and feature extractor as one single unified tool.
+3. Create a pipeline to generate deepfakes.
+4. Fix:
+4.1. Feature Extractor in Kali Linux is ending up in a dependency issue - tensorflow
+5. Start working on the Detector itself.
+6. Add time and resource consumption modules.

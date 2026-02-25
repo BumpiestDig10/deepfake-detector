@@ -25,24 +25,24 @@ Dependencies:
 """
 
 import os
-import logging
+import centralLogging as centralLogging
 
 # --- Configuration for Logging ---
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = centralLogging.get_logger(console_level="WARNING", file_level="DEBUG")
 
 # --- Attempt to import the magic library ---
 try:
     import magic
     MAGIC_AVAILABLE = True
-    logging.info("Successfully imported the 'magic' library. Will use it for file type identification.")
+    logger.info("Successfully imported the 'magic' library. Will use it for file type identification.")
 except ImportError:
     MAGIC_AVAILABLE = False
-    logging.warning("The 'magic' library is not installed. Falling back to file extension-based identification.")
-    logging.warning("For more accurate results, please install python-magic and its dependency, libmagic.")
+    logger.warning("The 'magic' library is not installed. Falling back to file extension-based identification.")
+    logger.warning("For more accurate results, please install python-magic and its dependency, libmagic.")
 except Exception as e:
     MAGIC_AVAILABLE = False
-    logging.error(f"An unexpected error occurred while importing 'magic': {e}")
-    logging.error("Proceeding with fallback to file extension-based identification.")
+    logger.error(f"An unexpected error occurred while importing 'magic': {e}")
+    logger.error("Proceeding with fallback to file extension-based identification.")
 
 
 class FileTypeIdentifier:
@@ -104,20 +104,20 @@ class FileTypeIdentifier:
             The identified MIME type as a string, or None if identification fails.
         """
         if not self.magic_available:
-            logging.debug("Magic library not available, skipping magic-based identification.")
+            logger.debug("Magic library not available, skipping magic-based identification.")
             return None
         try:
             mime_type = magic.from_file(filepath, mime=True)
-            logging.debug(f"Magic identified '{filepath}' as '{mime_type}'.")
+            logger.debug(f"Magic identified '{filepath}' as '{mime_type}'.")
             return mime_type
         except magic.MagicException as e:
-            logging.error(f"A magic-related error occurred for '{filepath}': {e}")
+            logger.error(f"A magic-related error occurred for '{filepath}': {e}")
             return None
         except FileNotFoundError:
-            logging.error(f"File not found for magic identification: '{filepath}'")
+            logger.error(f"File not found for magic identification: '{filepath}'")
             return None
         except Exception as e:
-            logging.error(f"An unexpected error occurred during magic identification of '{filepath}': {e}")
+            logger.error(f"An unexpected error occurred during magic identification of '{filepath}': {e}")
             return None
 
     def identify_by_extension(self, filepath: str) -> str:
@@ -134,10 +134,10 @@ class FileTypeIdentifier:
             _, file_extension = os.path.splitext(filepath)
             file_extension = file_extension.lower()
             mime_type = self.mime_map.get(file_extension, 'application/octet-stream')
-            logging.debug(f"Identified '{filepath}' as '{mime_type}' by extension.")
+            logger.debug(f"Identified '{filepath}' as '{mime_type}' by extension.")
             return mime_type
         except Exception as e:
-            logging.error(f"Could not identify by extension for '{filepath}': {e}")
+            logger.error(f"Could not identify by extension for '{filepath}': {e}")
             return 'application/octet-stream' # Default for unknown binary files
 
     def identify_file_type(self, filepath: str) -> str:
@@ -154,27 +154,27 @@ class FileTypeIdentifier:
             The identified MIME type string.
         """
         if not os.path.exists(filepath):
-            logging.error(f"File does not exist: {filepath}")
+            logger.error(f"File does not exist: {filepath}")
             raise FileNotFoundError(f"The file '{filepath}' was not found.")
         
-        logging.info(f"Identifying file type for: {filepath}")
+        logger.info(f"Identifying file type for: {filepath}")
 
         # Primary method: using magic numbers
         mime_type = self.identify_by_magic(filepath)
 
         if mime_type:
-            logging.info(f"SUCCESS (Magic): Identified '{os.path.basename(filepath)}' as '{mime_type}'.")
+            logger.info(f"SUCCESS (Magic): Identified '{os.path.basename(filepath)}' as '{mime_type}'.")
             return mime_type
         
         # Fallback method: using file extension
-        logging.warning(f"Could not identify with magic, falling back to file extension for '{filepath}'.")
+        logger.warning(f"Could not identify with magic, falling back to file extension for '{filepath}'.")
         mime_type = self.identify_by_extension(filepath)
-        logging.info(f"SUCCESS (Fallback): Identified '{os.path.basename(filepath)}' as '{mime_type}'.")
+        logger.info(f"SUCCESS (Fallback): Identified '{os.path.basename(filepath)}' as '{mime_type}'.")
         return mime_type
 
 def create_dummy_files():
     """Creates a few dummy files for testing purposes."""
-    logging.info("Creating dummy files for testing...")
+    logger.info("Creating dummy files for testing...")
     os.makedirs("test_files", exist_ok=True)
     
     # Text file
@@ -190,7 +190,7 @@ def create_dummy_files():
     with open("test_files/filewithnoextension", "w") as f:
         f.write("Some data")
         
-    logging.info("Dummy files created in 'test_files' directory.")
+    logger.info("Dummy files created in 'test_files' directory.")
 
 
 if __name__ == '__main__':

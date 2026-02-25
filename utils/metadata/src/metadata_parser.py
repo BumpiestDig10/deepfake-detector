@@ -1,5 +1,4 @@
 import argparse
-import logging
 import sys
 import os
 import csv
@@ -12,15 +11,21 @@ import collections.abc
 from pathlib import Path
 from tqdm import tqdm
 
+import centralLogging as centralLogging
+logger = centralLogging.get_logger(console_level="WARNING", file_level="DEBUG")
+
+# --- Shared Resources for Multithreading ---
+file_queue = queue.Queue()
+results_queue = queue.Queue()
+stop_event = threading.Event()
+
 # --- Dependency Imports & Checks ---
 
 # Custom Module
 try:
-    from fileTypeIdentifier import FileTypeIdentifier
+    from utils.metadata.src.fileTypeIdentifier import FileTypeIdentifier
 except ImportError:
-    # Use a basic logger until setup is complete
-    logging.basicConfig(level=logging.CRITICAL)
-    logging.critical("CRITICAL ERROR: Could not import 'FileTypeIdentifier'. Make sure 'fileTypeIdentifier.py' is in the same directory.")
+    logger.critical("CRITICAL ERROR: Could not import 'FileTypeIdentifier'. Make sure 'fileTypeIdentifier.py' is in the same directory.")
     sys.exit(1)
 
 # Layer 1 Tools
@@ -29,11 +34,14 @@ try:
     EXIFTOOL_AVAILABLE = True
 except ImportError:
     EXIFTOOL_AVAILABLE = False
+    logger.warning("pyexiftool not found. Layer 1 ExifTool extraction skipped.")
+    
 try:
     from tika import parser as tika_parser
     TIKA_AVAILABLE = True
 except ImportError:
     TIKA_AVAILABLE = False
+    logger.warning("tika-client not found. Layer 1 Tika extraction skipped.")
 
 # Layer 2 Libraries
 try:
@@ -41,21 +49,28 @@ try:
     PILLOW_AVAILABLE = True
 except ImportError:
     PILLOW_AVAILABLE = False
+    logger.warning("Pillow not found. Layer 2 image extraction skipped.")
+    
 try:
     import mutagen
     MUTAGEN_AVAILABLE = True
 except ImportError:
     MUTAGEN_AVAILABLE = False
+    logger.warning("Mutagen not found. Layer 2 audio extraction skipped.")
+    
 try:
     from pypdf import PdfReader
     PYPDF_AVAILABLE = True
 except ImportError:
     PYPDF_AVAILABLE = False
+    logger.warning("pypdf not found. Layer 2 PDF extraction skipped.")
+    
 try:
     import docx
     DOCX_AVAILABLE = True
 except ImportError:
     DOCX_AVAILABLE = False
+    logger.warning("python-docx not found. Layer 2 DOCX extraction skipped.")
 
 # Layer 3 Library
 try:
@@ -64,6 +79,7 @@ try:
     HACHOIR_AVAILABLE = True
 except ImportError:
     HACHOIR_AVAILABLE = False
+    logger.warning("hachoir not found. Layer 3 binary analysis skipped.")
 
 # Platform-specific imports
 try:
@@ -72,63 +88,7 @@ try:
     UNIX_SYSTEM = True
 except ImportError:
     UNIX_SYSTEM = False
-
-# --- Shared Resources for Multithreading ---
-file_queue = queue.Queue()
-results_queue = queue.Queue()
-stop_event = threading.Event()
-
-# =============================================================================
-# LOGGING SETUP
-# =============================================================================
-def setup_logging(verbosity: int):
-    """Configures logging based on the verbosity level."""
-    # Determine console logging level
-    if verbosity >= 2:
-        console_level = logging.INFO
-    else:
-        console_level = logging.WARNING
-
-    # Create logs directory in the project's base directory (one level up)
-    script_path = Path(__file__).resolve()
-    log_dir = script_path.parent.parent / "logs"
-    log_dir.mkdir(exist_ok=True)
-    
-    # Generate a timestamped log file name
-    log_file_name = f"extraction_{time.strftime('%Y%m%d_%H%M%S')}.log"
-    log_file_path = log_dir / log_file_name
-    
-    # Configure root logger to capture everything at INFO level for the file
-    root_logger = logging.getLogger()
-    root_logger.setLevel(logging.INFO)
-
-    # Clear any existing handlers to avoid duplicate logs
-    if root_logger.hasHandlers():
-        root_logger.handlers.clear()
-
-    # Create file handler - always logs at INFO level
-    file_handler = logging.FileHandler(log_file_path, encoding='utf-8')
-    file_handler.setLevel(logging.INFO)
-    file_formatter = logging.Formatter('%(asctime)s - %(levelname)-8s - %(message)s')
-    file_handler.setFormatter(file_formatter)
-    root_logger.addHandler(file_handler)
-
-    # Create console handler - logs at the level determined by verbosity
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(console_level)
-    console_formatter = logging.Formatter('%(levelname)-8s - %(message)s')
-    console_handler.setFormatter(console_formatter)
-    root_logger.addHandler(console_handler)
-    
-    # Log initial warnings for missing dependencies now that logging is configured
-    if not EXIFTOOL_AVAILABLE: logging.warning("pyexiftool not found. Layer 1 ExifTool extraction skipped.")
-    if not TIKA_AVAILABLE: logging.warning("tika-client not found. Layer 1 Tika extraction skipped.")
-    if not PILLOW_AVAILABLE: logging.warning("Pillow not found. Layer 2 image extraction skipped.")
-    if not MUTAGEN_AVAILABLE: logging.warning("Mutagen not found. Layer 2 audio extraction skipped.")
-    if not PYPDF_AVAILABLE: logging.warning("pypdf not found. Layer 2 PDF extraction skipped.")
-    if not DOCX_AVAILABLE: logging.warning("python-docx not found. Layer 2 DOCX extraction skipped.")
-    if not HACHOIR_AVAILABLE: logging.warning("hachoir not found. Layer 3 binary analysis skipped.")
-    if not UNIX_SYSTEM: logging.info("Not a UNIX-like system. File owner/group names not extracted.")
+    logger.info("Not a UNIX-like system. File owner/group names not extracted.")
 
 # =============================================================================
 # METADATA PARSER FUNCTIONS (Layers 0, 1, 2, 3)
@@ -142,9 +102,9 @@ def extract_os_metadata(filepath: str) -> dict:
             "OS.FileName": os.path.basename(filepath),
             "OS.FilePath": os.path.abspath(filepath),
             "OS.FileSize_Bytes": stat_info.st_size,
-            "OS.ModTime_UTC": datetime.fromtimestamp(stat_info.st_mtime, timezone.utc).isoformat(),
-            "OS.AccessTime_UTC": datetime.fromtimestamp(stat_info.st_atime, timezone.utc).isoformat(),
-            "OS.CreateTime_UTC": datetime.fromtimestamp(stat_info.st_ctime, timezone.utc).isoformat(),
+            "OS.ModTime_Local": datetime.fromtimestamp(stat_info.st_mtime).isoformat(),
+            "OS.AccessTime_Local": datetime.fromtimestamp(stat_info.st_atime).isoformat(),
+            "OS.CreateTime_Local": datetime.fromtimestamp(stat_info.st_ctime).isoformat(),
             "OS.Permissions": oct(stat_info.st_mode)[-3:],
         }
         if UNIX_SYSTEM:
@@ -177,7 +137,7 @@ def extract_tika_metadata(filepath: str) -> dict:
         return parsed.get("metadata", {})
     except Exception as e:
         if "ConnectionRefusedError" in str(e):
-             logging.critical("CRITICAL: Tika connection failed. Is Tika Server running? Aborting.")
+             logger.critical("CRITICAL: Tika connection failed. Is Tika Server running? Aborting.")
              stop_event.set() # Signal all threads to stop
              # We can't sys.exit here as it kills only this thread.
              # The main thread will handle the exit.
@@ -226,7 +186,7 @@ def extract_docx_metadata(filepath: str) -> dict:
 # --- Layer 3 ---
 def extract_hachoir_metadata(filepath: str) -> dict:
     if not HACHOIR_AVAILABLE: return {}
-    logging.info(f"[Layer 3] Routing to Hachoir for binary analysis: {os.path.basename(filepath)}")
+    logger.info(f"[Layer 3] Routing to Hachoir for binary analysis: {os.path.basename(filepath)}")
     hachoir_meta = {}
     try:
         stream = hachoir.stream.FileInputStream(filepath)
@@ -263,10 +223,10 @@ def flatten_dict(d: collections.abc.Mapping, parent_key: str = '', sep: str = '.
 
 def process_file(filepath: str, file_identifier: FileTypeIdentifier) -> dict:
     """Processes a single file through all relevant extraction layers."""
-    logging.info(f"--- Processing: {os.path.basename(filepath)} ---")
+    logger.info(f"--- Processing: {os.path.basename(filepath)} ---")
     all_metadata = {}
     mime_type = file_identifier.identify_file_type(filepath)
-    logging.info(f"Identified MIME Type for '{os.path.basename(filepath)}' as '{mime_type}'.")
+    logger.info(f"Identified MIME Type for '{os.path.basename(filepath)}' as '{mime_type}'.")
     
     # Layer 0 (Always runs)
     all_metadata.update(extract_os_metadata(filepath))
@@ -279,7 +239,7 @@ def process_file(filepath: str, file_identifier: FileTypeIdentifier) -> dict:
     all_metadata.update(extract_tika_metadata(filepath))
 
     # Layer 2 (Specialized refinement)
-    logging.info(f"[Layer 2] Checking for specialized parsers for {mime_type}...")
+    logger.info(f"[Layer 2] Checking for specialized parsers for {mime_type}...")
     if main_category == 'image' and PILLOW_AVAILABLE:
         all_metadata.update(extract_pillow_metadata(filepath))
     elif main_category == 'audio' and MUTAGEN_AVAILABLE:
@@ -289,7 +249,7 @@ def process_file(filepath: str, file_identifier: FileTypeIdentifier) -> dict:
     elif 'wordprocessingml' in sub_type and DOCX_AVAILABLE:
         all_metadata.update(extract_docx_metadata(filepath))
     else:
-        logging.info("[Layer 2] No specialized parser for this subtype.")
+        logger.info("[Layer 2] No specialized parser for this subtype.")
     
     # Layer 3 (Generic fallback)
     all_metadata.update(extract_hachoir_metadata(filepath))
@@ -303,7 +263,7 @@ def process_file(filepath: str, file_identifier: FileTypeIdentifier) -> dict:
 
 def metadata_extractor_worker(stop_event_ref):
     """Worker thread to pull files from queue and extract metadata."""
-    logging.info("Extractor worker started.")
+    logger.info("Extractor worker started.")
     identifier = FileTypeIdentifier()
     while not stop_event_ref.is_set():
         try:
@@ -312,19 +272,19 @@ def metadata_extractor_worker(stop_event_ref):
                 metadata = process_file(filepath, identifier)
                 results_queue.put(metadata)
             except Exception as e:
-                logging.error(f"Unhandled error processing {os.path.basename(filepath)}: {e}")
+                logger.error(f"Unhandled error processing {os.path.basename(filepath)}: {e}")
                 results_queue.put({"OS.FileName": os.path.basename(filepath), "Error.Processing": str(e)})
             finally:
                 file_queue.task_done()
         except queue.Empty:
             if file_queue.qsize() == 0:
-                logging.info("File queue is empty, extractor worker is finishing.")
+                logger.info("File queue is empty, extractor worker is finishing.")
                 break # Exit if the queue is truly empty
-    logging.info("Extractor worker stopped.")
+    logger.info("Extractor worker stopped.")
 
 def csv_writer_worker(output_csv, stop_event_ref, progress_bar):
     """Worker thread to write metadata results to CSV in batches."""
-    logging.info("CSV writer worker started.")
+    logger.info("CSV writer worker started.")
     results_buffer = []
     all_fieldnames = set()
     is_header_written = False
@@ -340,7 +300,7 @@ def csv_writer_worker(output_csv, stop_event_ref, progress_bar):
                            (stop_event_ref.is_set() and results_queue.empty()))
 
             if should_write and results_buffer:
-                logging.info(f"Writing batch of {len(results_buffer)} results to CSV.")
+                logger.info(f"Writing batch of {len(results_buffer)} results to CSV.")
                 
                 # Check for new headers
                 current_keys = set()
@@ -370,7 +330,7 @@ def csv_writer_worker(output_csv, stop_event_ref, progress_bar):
                         writer.writerows(results_buffer)
                     results_buffer.clear()
                 except IOError as e:
-                    logging.error(f"Could not write to CSV file {output_csv}: {e}")
+                    logger.error(f"Could not write to CSV file {output_csv}: {e}")
                     # Don't clear buffer, try again on next iteration
                     
         except queue.Empty:
@@ -379,7 +339,7 @@ def csv_writer_worker(output_csv, stop_event_ref, progress_bar):
 
     # Final write for any remaining items in the buffer
     if results_buffer:
-        logging.info(f"Writing final batch of {len(results_buffer)} results.")
+        logger.info(f"Writing final batch of {len(results_buffer)} results.")
         # Final write is always append unless it's the very first write
         write_mode = 'a' if is_header_written else 'w'
         all_fieldnames.update(*(res.keys() for res in results_buffer))
@@ -390,7 +350,7 @@ def csv_writer_worker(output_csv, stop_event_ref, progress_bar):
                 writer.writeheader()
             writer.writerows(results_buffer)
 
-    logging.info("CSV writer worker stopped.")
+    logger.info("CSV writer worker stopped.")
     progress_bar.close()
 
 # =============================================================================
@@ -401,15 +361,12 @@ def main():
         description="A multi-layered, multithreaded metadata parser.",
         formatter_class=argparse.RawTextHelpFormatter
     )
-    parser.add_argument('--dir', type=str, required=True, help="Path to the directory with files to process.")
+    parser.add_argument('--input', type=str, required=True, help="Path to the directory with files to process.")
     parser.add_argument('--output', type=str,
-        default=os.path.join('..', 'results', f"metadata_{time.strftime('%Y%m%d_%H%M%S')}.csv"),
+        default=os.path.join('results', 'metadata', f"metadata_{time.strftime('%Y%m%d_%H%M%S')}.csv"),
         help="Path to save the output CSV file.\n(Default: ../results/metadata_[timestamp].csv)")
-    parser.add_argument('-v', '--verbose', action='count', default=0,
-        help="Increase console verbosity. -v for progress bar, -vv for detailed info logs.")
     args = parser.parse_args()
 
-    setup_logging(args.verbose)
     
     # Ensure output directory exists
     output_dir = os.path.dirname(args.output)
@@ -419,28 +376,28 @@ def main():
     # --- Print Header ---
     print("\n" + "="*70)
     print("      METADATA PARSER/EXTRACTOR (Multithreaded)")
-    print(f"      Input Directory: '{args.dir}'")
+    print(f"      Input Directory: '{args.input}'")
     print(f"      Output CSV: '{args.output}'")
     print("="*70 + "\n")
 
     # --- Populate file queue ---
-    if not os.path.isdir(args.dir):
-        logging.critical(f"Provided path is not a directory: {args.dir}")
+    if not os.path.isdir(args.input):
+        logger.critical(f"Provided path is not a directory: {args.input}")
         sys.exit(1)
         
-    files_to_process = [os.path.join(args.dir, f) for f in os.listdir(args.dir) if os.path.isfile(os.path.join(args.dir, f))]
+    files_to_process = [os.path.join(args.input, f) for f in os.listdir(args.input) if os.path.isfile(os.path.join(args.input, f))]
     if not files_to_process:
-        logging.warning("No files found in the specified directory. Exiting.")
+        logger.warning("No files found in the specified directory. Exiting.")
         sys.exit(0)
     
     for filepath in files_to_process:
         file_queue.put(filepath)
     
     total_files = len(files_to_process)
-    logging.info(f"Found {total_files} files to process.")
+    logger.info(f"Found {total_files} files to process.")
     
     # --- Setup Progress Bar ---
-    progress_bar = tqdm(total=total_files, desc="Extracting Metadata", unit="file", disable=(args.verbose < 1))
+    progress_bar = tqdm(total=total_files, desc="Extracting Metadata", unit="file")
 
     # --- Setup and Start Threads ---
     extractor_thread = threading.Thread(target=metadata_extractor_worker, args=(stop_event,))
@@ -451,7 +408,7 @@ def main():
 
     # --- Graceful Shutdown Handler ---
     def signal_handler(sig, frame):
-        logging.warning("\nCtrl+C detected! Shutting down gracefully...")
+        logger.warning("\nCtrl+C detected! Shutting down gracefully...")
         stop_event.set()
     signal.signal(signal.SIGINT, signal_handler)
 

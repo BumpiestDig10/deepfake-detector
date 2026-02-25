@@ -1,8 +1,6 @@
 venv/
 utils/metadata-parser/logs/
-utils/metadata-parser/results/
 utils/metadata-parser/test_files/
-utils/metadata-parser/src/__pycache__/
 utils/feature-extractor/results/
 dataset/
 notebooks/.ipynb_checkpoints/
@@ -12,3 +10,5 @@ notebooks/.ipynb_checkpoints/
 *.pdf
 models/info.txt
 *.html
+*.pyc
+*.log
