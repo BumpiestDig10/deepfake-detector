@@ -176,19 +176,19 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python inception_extractor.py --dir /path/to/images/
-  python inception_extractor.py --dir /path/to/images/ --out /path/to/output.csv
+  python inception_extractor.py --input /path/to/images/
+  python inception_extractor.py --input /path/to/images/ --output /path/to/output.csv
         """
     )
 
     parser.add_argument(
-        '--dir',
+        '--input',
         required=True,
         help='Path to folder containing images (mandatory)'
     )
 
     parser.add_argument(
-        '--out',
+        '--output',
         default=None,
         help='Path to output CSV file (optional, defaults to ../results/Inception_[timestamp].csv)'
     )
@@ -196,23 +196,23 @@ Examples:
     args = parser.parse_args()
 
     # Set default output path if not provided
-    if args.out is None:
+    if args.output is None:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         results_dir = Path("../results")
         results_dir.mkdir(exist_ok=True)
-        args.out = str(results_dir / f"Inception_{timestamp}.csv")
+        args.output = str(results_dir / f"Inception_{timestamp}.csv")
 
     # Validate input directory
-    if not os.path.isdir(args.dir):
-        print(f"Error: Directory does not exist: {args.dir}")
+    if not os.path.isdir(args.input):
+        print(f"Error: Directory does not exist: {args.input}")
         sys.exit(1)
 
     # Create output directory if it doesn't exist
-    output_dir = Path(args.out).parent
+    output_dir = Path(args.output).parent
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"Input directory: {args.dir}")
-    print(f"Output CSV file: {args.out}")
+    print(f"Input directory: {args.input}")
+    print(f"Output CSV file: {args.output}")
 
     # Initialize graceful killer
     killer = GracefulKiller()
@@ -220,7 +220,7 @@ Examples:
     try:
         # Get list of image files
         print("\nScanning for image files...")
-        image_files = get_image_files(args.dir)
+        image_files = get_image_files(args.input)
 
         if not image_files:
             print("No image files found in the specified directory!")
@@ -257,7 +257,7 @@ Examples:
             if features:
                 # Write to CSV (append mode for subsequent batches)
                 mode = 'w' if batch_idx == 0 else 'a'
-                write_features_to_csv(args.out, features, successful_paths, mode=mode)
+                write_features_to_csv(args.output, features, successful_paths, mode=mode)
                 processed_count += len(features)
 
             # Force garbage collection to manage memory
@@ -269,7 +269,7 @@ Examples:
         print(f"\n{'='*50}")
         print(f"Feature extraction completed!")
         print(f"Total images processed: {processed_count}/{len(image_files)}")
-        print(f"Output saved to: {args.out}")
+        print(f"Output saved to: {args.output}")
         print(f"{'='*50}")
 
     except KeyboardInterrupt:

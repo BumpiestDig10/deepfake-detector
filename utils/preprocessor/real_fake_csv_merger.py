@@ -72,7 +72,7 @@ if __name__ == "__main__":
         help="Path to the 'fake' CSV file. (Mandatory)"
     )
     parser.add_argument(
-        "--out",
+        "--output",
         type=str,
         default=None,
         help="Optional: Path to save the merged output CSV file. "
@@ -83,4 +83,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Call the merge function with the parsed arguments
-    merge_csv_with_class(args.real, args.fake, args.out)
+    merge_csv_with_class(args.real, args.fake, args.output)

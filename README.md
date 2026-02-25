@@ -17,7 +17,6 @@ python -m utils.metadata.metadata_parser --input "path/to/input_directory" --out
 $~$
 
 ### TODO: (for images branch)
-- [ ] Fix args to be consistent throughout codebase (--input/-i, --output/-o, --help/-h).
 - [ ] Integrate Central Logging
     - [ ] data-preprocessor
     - [ ] feature-extractor
@@ -30,3 +29,16 @@ $~$
 - [ ] Add time and resource consumption modules.
 - [ ] Add support for scalpel. If embedded files steganography found, this will be used to extract all files.
 - [ ] Fix all README.
+
+$~$
+
+> [!NOTE]
+> Args:
+> - /utils/featureExtractor/
+>   - InceptionV3_GlobalAvgPoolLayer_image_feature_extractor.py: input, output (optional)
+>   - ResNet50_image_feature_extractor.py: input, output (optional)
+> - /utils/metadata/
+>   - metadata_parser.py: input, output (optional)
+> - /utils/preprocessor/
+>   - csv_mapNmerge.py: base, label
+>   - real_fake_csv_merger.py: real, fake, output (optional)
