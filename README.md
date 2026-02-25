@@ -24,3 +24,4 @@ $~$
 4.1. Feature Extractor in Kali Linux is ending up in a dependency issue - tensorflow
 5. Start working on the Detector itself.
 6. Add time and resource consumption modules.
+7. Add support for scalpel. If embedded files steganography found, this will be used to extract all files.

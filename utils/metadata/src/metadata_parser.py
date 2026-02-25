@@ -12,7 +12,7 @@ from pathlib import Path
 from tqdm import tqdm
 
 import centralLogging as centralLogging
-logger = centralLogging.get_logger(console_level="WARNING", file_level="DEBUG")
+logger = centralLogging.get_logger(console_level="DEBUG", file_level="WARNING")
 
 # --- Shared Resources for Multithreading ---
 file_queue = queue.Queue()
