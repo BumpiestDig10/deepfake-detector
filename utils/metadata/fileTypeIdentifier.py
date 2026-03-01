@@ -28,7 +28,7 @@ import os
 import centralLogging as centralLogging
 
 # --- Configuration for Logging ---
-logger = centralLogging.get_logger(console_level="DEBUG", file_level="INFO")
+logger = centralLogging.get_logger(console_level="INFO", file_level="DEBUG")
 
 # --- Attempt to import the magic library ---
 try:
@@ -157,19 +157,19 @@ class FileTypeIdentifier:
             logger.error(f"File does not exist: {filepath}")
             raise FileNotFoundError(f"The file '{filepath}' was not found.")
         
-        logger.info(f"Identifying file type for: {filepath}")
+        logger.debug(f"Identifying file type for: {filepath}")
 
         # Primary method: using magic numbers
         mime_type = self.identify_by_magic(filepath)
 
         if mime_type:
-            logger.info(f"SUCCESS (Magic): Identified '{os.path.basename(filepath)}' as '{mime_type}'.")
+            logger.debug(f"SUCCESS (Magic): Identified '{os.path.basename(filepath)}' as '{mime_type}'.")
             return mime_type
         
         # Fallback method: using file extension
         logger.warning(f"Could not identify with magic, falling back to file extension for '{filepath}'.")
         mime_type = self.identify_by_extension(filepath)
-        logger.info(f"SUCCESS (Fallback): Identified '{os.path.basename(filepath)}' as '{mime_type}'.")
+        logger.debug(f"SUCCESS (Fallback): Identified '{os.path.basename(filepath)}' as '{mime_type}'.")
         return mime_type
 
 def create_dummy_files():

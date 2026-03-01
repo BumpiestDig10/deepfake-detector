@@ -12,7 +12,7 @@ from pathlib import Path
 from tqdm import tqdm
 
 import centralLogging as centralLogging
-logger = centralLogging.get_logger(console_level="DEBUG", file_level="INFO")
+logger = centralLogging.get_logger(console_level="INFO", file_level="DEBUG", log_to_console=False)
 
 # --- Shared Resources for Multithreading ---
 file_queue = queue.Queue()
@@ -192,7 +192,7 @@ def extract_docx_metadata(filepath: str) -> dict:
 # --- Layer 3 ---
 def extract_hachoir_metadata(filepath: str) -> dict:
     if not HACHOIR_AVAILABLE: return {}
-    logger.info(f"[Layer 3] Routing to Hachoir for binary analysis: {os.path.basename(filepath)}")
+    logger.debug(f"[Layer 3] Routing to Hachoir for binary analysis: {os.path.basename(filepath)}")
     hachoir_meta = {}
     try:
         stream = hachoir.stream.FileInputStream(filepath)
@@ -232,7 +232,7 @@ def process_file(filepath: str, file_identifier: FileTypeIdentifier) -> dict:
     logger.info(f"--- Processing: {os.path.basename(filepath)} ---")
     all_metadata = {}
     mime_type = file_identifier.identify_file_type(filepath)
-    logger.info(f"Identified MIME Type for '{os.path.basename(filepath)}' as '{mime_type}'.")
+    logger.debug(f"Identified MIME Type for '{os.path.basename(filepath)}' as '{mime_type}'.")
     
     # Layer 0 (Always runs)
     all_metadata.update(extract_os_metadata(filepath))
@@ -245,7 +245,7 @@ def process_file(filepath: str, file_identifier: FileTypeIdentifier) -> dict:
     all_metadata.update(extract_tika_metadata(filepath))
 
     # Layer 2 (Specialized refinement)
-    logger.info(f"[Layer 2] Checking for specialized parsers for {mime_type}...")
+    logger.debug(f"[Layer 2] Checking for specialized parsers for {mime_type}...")
     if main_category == 'image' and PILLOW_AVAILABLE:
         all_metadata.update(extract_pillow_metadata(filepath))
     elif main_category == 'audio' and MUTAGEN_AVAILABLE:
@@ -380,10 +380,10 @@ def main():
         os.makedirs(output_dir, exist_ok=True)
 
     # --- Print Header ---
-    logger.info("="*70 + "\n")
+    logger.info("="*70)
     logger.info(f"Input Directory: '{args.input}'")
     logger.info(f"Output CSV: '{args.output}'")
-    logger.info("="*70 + "\n")
+    logger.info("="*70)
 
     # --- Populate file queue ---
     if not os.path.isdir(args.input):
@@ -413,7 +413,7 @@ def main():
 
     # --- Graceful Shutdown Handler ---
     def signal_handler(sig, frame):
-        logger.warning("\nCtrl+C detected! Shutting down gracefully...")
+        logger.warning("Ctrl+C detected! Shutting down gracefully...")
         stop_event.set()
     signal.signal(signal.SIGINT, signal_handler)
 
@@ -429,10 +429,10 @@ def main():
     writer_thread.join()
 
     # --- Final Summary ---
-    logger.info("="*70 + "\n")
+    logger.info("="*70)
     logger.info("Processing Complete.")
     logger.info(f"Check '{os.path.abspath(args.output)}' for results.")
     logger.info(f"A detailed log file has been saved in the ../logs/ directory.")
-    logger.info("="*70 + "\n")
+    logger.info("="*70)
 if __name__ == '__main__':
     main()
