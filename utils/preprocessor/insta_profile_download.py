@@ -16,7 +16,7 @@ def load_state():
             print(f"🔄 Resuming from log: {LOG_NAME}")
             return json.load(f)
     
-    return {"photo_idx": 1, "video_idx": 1, "downloaded_ids": []}
+    return {f"{TARGET_USER}_photo_idx": 1, f"{TARGET_USER}_video_idx": 1, "downloaded_ids": []}
 
 def save_state(state):
     with open(LOG_PATH, "w") as f:
@@ -66,23 +66,23 @@ try:
                             L.download_post(post, target=VIDEO_PATH)
                             has_video = True
                         else:
-                            L.filename_pattern = f"{TARGET_USER}_photo_{state['photo_idx']}_{sub_idx}"
+                            L.filename_pattern = f"{TARGET_USER}_photo_{state[f'{TARGET_USER}_photo_idx']}_{sub_idx}"
                             L.download_post(post, target=PHOTO_PATH)
                             has_photo = True
                         sub_idx += 1
                 else:
                     if post.is_video:
-                        L.filename_pattern = f"{TARGET_USER}_video_{state['video_idx']}_1"
+                        L.filename_pattern = f"{TARGET_USER}_video_{state[f'{TARGET_USER}_video_idx']}_1"
                         L.download_post(post, target=VIDEO_PATH)
                         has_video = True
                     else:
-                        L.filename_pattern = f"{TARGET_USER}_photo_{state['photo_idx']}_1"
+                        L.filename_pattern = f"{TARGET_USER}_photo_{state[f'{TARGET_USER}_photo_idx']}_1"
                         L.download_post(post, target=PHOTO_PATH)
                         has_photo = True
 
                 # Update state
-                if has_photo: state["photo_idx"] += 1
-                if has_video: state["video_idx"] += 1
+                if has_photo: state[f"{TARGET_USER}_photo_idx"] += 1
+                if has_video: state[f"{TARGET_USER}_video_idx"] += 1
                 state["downloaded_ids"].append(post.shortcode)
                 save_state(state)
                 success = True
