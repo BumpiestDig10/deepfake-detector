@@ -28,7 +28,16 @@ $~$
 - [ ] Integrate Central Logging
     - [ ] data-preprocessor
     - [ ] feature-extractor
+        - [ ] InceptionV3_GlobalAvgPoolLayer_image_feature_extractor
+        - [ ] ResNet50_image_feature_extractor
     - [x] metadata
+        - [x] fileTypeIdentifier
+        - [x] metadata_parser
+    - [ ] preprocessor
+        - [ ] csv_mapNmerge
+        - [ ] hf_to_image
+        - [x] insta_profile_download
+        - [ ] real_fake_csv_merger
 - [ ] Merge metadata extractor and feature extractor as a single unified tool.
 - [ ] Create a pipeline to generate deepfakes.
 - [ ] Fix:
