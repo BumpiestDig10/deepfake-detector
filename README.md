@@ -16,6 +16,11 @@ $~$
 python -m utils.featureExtractor.InceptionV3_GlobalAvgPoolLayer_image_feature_extractor --input "relativePath/to/input_directory" --output "(OPTIONAL) relativePath/to/output_file"
 ```
 
+**To run the ResNet50 Feature Extractor**
+```bash
+python -m utils.featureExtractor.ResNet50_image_feature_extractor --input "relativePath/to/input_directory" --output "(OPTIONAL) relativePath/to/output_file"
+```
+
 **To run the Metadata Parser**
 ```bash
 python -m utils.metadata.metadata_parser --input "relativePath/to/input_directory" --output "(OPTIONAL) relativePath/to/output_file"
@@ -31,10 +36,9 @@ $~$
 
 ### TODO: (for images branch)
 - [ ] Integrate Central Logging
-    - [ ] data-preprocessor
-    - [ ] feature-extractor
+    - [x] feature-extractor
         - [x] InceptionV3_GlobalAvgPoolLayer_image_feature_extractor
-        - [ ] ResNet50_image_feature_extractor
+        - [x] ResNet50_image_feature_extractor
     - [x] metadata
         - [x] fileTypeIdentifier
         - [x] metadata_parser

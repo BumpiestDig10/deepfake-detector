@@ -30,7 +30,7 @@ from tensorflow.keras.applications.inception_v3 import preprocess_input
 from tensorflow.keras.preprocessing import image
 
 import centralLogging as cl
-logger = cl.get_logger(console_level="DEBUG", file_level="INFO")
+logger = cl.get_logger(console_level="INFO", file_level="DEBUG")
 
 
 class GracefulKiller:
@@ -110,6 +110,7 @@ class InceptionV3FeatureExtractor:
             try:
                 # Preprocess image
                 img_array = self.preprocess_image(image_path)
+                logger.debug(f"Preprocessed image: {image_path}")
                 if img_array is None:
                     continue
 
@@ -117,6 +118,7 @@ class InceptionV3FeatureExtractor:
                 feature_vector = self.feature_extractor.predict(img_array, verbose=0)
                 features.append(feature_vector.flatten())
                 successful_paths.append(image_path)
+                logger.debug(f"Extracted features for: {image_path}")
 
                 # Progress indicator
                 if (i + 1) % 10 == 0:

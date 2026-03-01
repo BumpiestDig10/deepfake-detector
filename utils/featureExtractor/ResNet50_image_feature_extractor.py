@@ -29,6 +29,9 @@ from tensorflow.keras.applications import ResNet50
 from tensorflow.keras.applications.resnet50 import preprocess_input
 from tensorflow.keras.preprocessing import image
 
+import centralLogging as cl
+logger = cl.get_logger(console_level="INFO", file_level="DEBUG")
+
 
 class GracefulKiller:
     """Handle graceful termination signals"""
@@ -40,7 +43,7 @@ class GracefulKiller:
 
     def exit_gracefully(self, signum, frame):
         """Set flag for graceful termination"""
-        print(f"\nReceived signal {signum}. Initiating graceful shutdown...")
+        logger.warning(f"Received signal {signum}. Initiating graceful shutdown...")
         self.kill_now = True
 
 
@@ -55,7 +58,7 @@ class ResNet50FeatureExtractor:
     def load_model(self):
         """Load ResNet50 model and create feature extractor"""
         try:
-            print("Loading ResNet50 model...")
+            logger.debug("Loading ResNet50 model...")
 
             # Load the base ResNet50 model
             base_model = ResNet50(
@@ -68,11 +71,11 @@ class ResNet50FeatureExtractor:
             # The model with global average pooling already applied
             self.feature_extractor = base_model
 
-            print("Model loaded successfully!")
-            print(f"Feature vector size: {base_model.output_shape[1]} dimensions")
+            logger.info("Model loaded successfully!")
+            logger.info(f"Feature vector size: {base_model.output_shape[1]} dimensions")
 
         except Exception as e:
-            print(f"Error loading model: {e}")
+            logger.critical(f"Error loading model: {e}")
             sys.exit(1)
 
     def preprocess_image(self, image_path: str) -> Optional[np.ndarray]:
@@ -93,7 +96,7 @@ class ResNet50FeatureExtractor:
             return img_array
 
         except Exception as e:
-            print(f"Error preprocessing image {image_path}: {e}")
+            logger.error(f"Error preprocessing image {image_path}: {e}")
             return None
 
     def extract_features_batch(self, image_paths: List[str]) -> Tuple[List[np.ndarray], List[str]]:
@@ -101,12 +104,13 @@ class ResNet50FeatureExtractor:
         features = []
         successful_filenames = []
 
-        print(f"Processing batch of {len(image_paths)} images...")
+        logger.debug(f"Processing batch of {len(image_paths)} images...")
 
         for i, image_path in enumerate(image_paths):
             try:
                 # Preprocess image
                 img_array = self.preprocess_image(image_path)
+                logger.debug(f"Preprocessed image: {image_path}")
                 if img_array is None:
                     continue
 
@@ -117,13 +121,14 @@ class ResNet50FeatureExtractor:
                 # Store only the filename, not the full path
                 filename = os.path.basename(image_path)
                 successful_filenames.append(filename)
+                logger.debug(f"Extracted features for: {image_path}")
 
                 # Progress indicator
                 if (i + 1) % 10 == 0:
-                    print(f"  Processed {i + 1}/{len(image_paths)} images in batch")
+                    logger.debug(f"  Processed {i + 1}/{len(image_paths)} images in batch")
 
             except Exception as e:
-                print(f"Error processing {image_path}: {e}")
+                logger.error(f"Error processing {image_path}: {e}")
                 continue
 
         return features, successful_filenames
@@ -163,10 +168,10 @@ def write_features_to_csv(csv_path: str, features: List[np.ndarray],
                 row = [filename] + feature_vector.tolist()
                 writer.writerow(row)
 
-        print(f"Successfully wrote {len(features)} feature vectors to {csv_path}")
+        logger.info(f"Successfully wrote {len(features)} feature vectors to {csv_path}")
 
     except Exception as e:
-        print(f"Error writing to CSV: {e}")
+        logger.error(f"Error writing to CSV: {e}")
         raise
 
 
@@ -192,7 +197,7 @@ Examples:
     parser.add_argument(
         '--output',
         default=None,
-        help='Path to output CSV file (optional, defaults to ../results/ResNet50_[timestamp].csv)'
+        help='Path to output CSV file (optional, defaults to results/image_features/ResNet50_[timestamp].csv)'
     )
 
     args = parser.parse_args()
@@ -200,35 +205,35 @@ Examples:
     # Set default output path if not provided
     if args.output is None:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        results_dir = Path("../results")
+        results_dir = Path("results/image_features")
         results_dir.mkdir(exist_ok=True)
         args.output = str(results_dir / f"ResNet50_{timestamp}.csv")
 
     # Validate input directory
     if not os.path.isdir(args.input):
-        print(f"Error: Directory does not exist: {args.input}")
+        logger.critical(f"Error: Directory does not exist: {args.input}")
         sys.exit(1)
 
     # Create output directory if it doesn't exist
     output_dir = Path(args.output).parent
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"Input directory: {args.input}")
-    print(f"Output CSV file: {args.output}")
+    logger.info(f"Input directory: {args.input}")
+    logger.info(f"Output CSV file: {args.output}")
 
     # Initialize graceful killer
     killer = GracefulKiller()
 
     try:
         # Get list of image files
-        print("\nScanning for image files...")
+        logger.debug("Scanning for image files...")
         image_files = get_image_files(args.input)
 
         if not image_files:
-            print("No image files found in the specified directory!")
+            logger.critical("No image files found in the specified directory!")
             sys.exit(1)
 
-        print(f"Found {len(image_files)} image files")
+        logger.info(f"Found {len(image_files)} image files")
 
         # Initialize feature extractor
         feature_extractor = ResNet50FeatureExtractor()
@@ -238,12 +243,12 @@ Examples:
         total_batches = (len(image_files) + batch_size - 1) // batch_size
         processed_count = 0
 
-        print(f"\nProcessing {len(image_files)} images in {total_batches} batches of {batch_size}...")
+        logger.info(f"Processing {len(image_files)} images in {total_batches} batches of {batch_size}...")
 
         for batch_idx in range(total_batches):
             # Check for graceful termination
             if killer.kill_now:
-                print("\nGraceful termination requested. Saving progress...")
+                logger.warning("Graceful termination requested. Saving progress...")
                 break
 
             # Get batch of image files
@@ -251,7 +256,7 @@ Examples:
             end_idx = min(start_idx + batch_size, len(image_files))
             batch_files = image_files[start_idx:end_idx]
 
-            print(f"\nProcessing batch {batch_idx + 1}/{total_batches}")
+            logger.debug(f"Processing batch {batch_idx + 1}/{total_batches}")
 
             # Extract features for batch
             features, successful_filenames = feature_extractor.extract_features_batch(batch_files)
@@ -265,22 +270,22 @@ Examples:
             # Force garbage collection to manage memory
             gc.collect()
 
-            print(f"Batch {batch_idx + 1} completed. Total processed: {processed_count}/{len(image_files)}")
+            logger.debug(f"Batch {batch_idx + 1} completed. Total processed: {processed_count}/{len(image_files)}")
 
         # Final summary
-        print(f"\n{'='*50}")
-        print(f"Feature extraction completed!")
-        print(f"Total images processed: {processed_count}/{len(image_files)}")
-        print(f"Output saved to: {args.output}")
-        print(f"{'='*50}")
+        logger.info(f"{'='*50}")
+        logger.info(f"Feature extraction completed!")
+        logger.info(f"Total images processed: {processed_count}/{len(image_files)}")
+        logger.info(f"Output saved to: {args.output}")
+        logger.info(f"{'='*50}")
 
     except KeyboardInterrupt:
-        print("\nInterrupted by user. Saving progress...")
+        logger.warning("Interrupted by user. Saving progress...")
     except Exception as e:
-        print(f"\nError during processing: {e}")
+        logger.critical(f"Error during processing: {e}")
         sys.exit(1)
     finally:
-        print("\nCleanup completed.")
+        logger.info("Cleanup completed.")
 
 
 if __name__ == "__main__":
