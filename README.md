@@ -38,10 +38,11 @@ $~$
         - [ ] hf_to_image
         - [x] insta_profile_download
         - [ ] real_fake_csv_merger
+- [ ] Add `TARGET_USERNAME` file parser for [insta_profile_download](utils/preprocessor/insta_profile_download.py).
 - [ ] Merge metadata extractor and feature extractor as a single unified tool.
 - [ ] Create a pipeline to generate deepfakes.
 - [ ] Fix:
-    - [ ] Feature Extractor in Kali Linux is ending up in a dependency issue - tensorflow
+    - [ ] Feature Extractor in Kali Linux is ending up in a dependency issue - tensorflow.
 - [ ] Start working on the Detector itself.
 - [ ] Add time and resource consumption modules.
 - [ ] Add support for scalpel. If embedded files steganography found, this will be used to extract all files.
