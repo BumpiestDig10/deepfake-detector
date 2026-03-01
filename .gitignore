@@ -12,6 +12,7 @@ models/info.txt
 *.html
 *.pyc
 *.log
+instaProfiles/*
 instaProfiles/*/*
 *.jpg
 *.jpeg
