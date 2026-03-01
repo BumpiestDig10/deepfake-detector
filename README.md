@@ -8,10 +8,18 @@ $ source venv/bin/activate  # Linux
 $ venv/Scripts/activate     # Windows
 $ pip install -r allRequirements.txt
 ```
+
 $~$
-To run the Metadata Parser:
+
+**To run the Metadata Parser**
 ```bash
 python -m utils.metadata.metadata_parser --input "path/to/input_directory" --output "(OPTIONAL) path/to/output_file"
+```
+
+**To run the Instagram Profile Downloader**
+- Change the username and password in the [script](utils/preprocessor/insta_profile_download.py) if needed. The one mentioned is a burner and may or may not work for you.
+```bash
+python -m utils.preprocessor.insta_profile_download
 ```
 
 $~$
@@ -35,10 +43,10 @@ $~$
 > [!NOTE]
 > Args:
 > - /utils/featureExtractor/
->   - InceptionV3_GlobalAvgPoolLayer_image_feature_extractor.py: input, output (optional)
->   - ResNet50_image_feature_extractor.py: input, output (optional)
+>   - [InceptionV3_GlobalAvgPoolLayer_image_feature_extractor.py](/utils/featureExtractor/InceptionV3_GlobalAvgPoolLayer_image_feature_extractor.py): input, output (optional)
+>   - [ResNet50_image_feature_extractor.py](/utils/featureExtractor/ResNet50_image_feature_extractor.py): input, output (optional)
 > - /utils/metadata/
->   - metadata_parser.py: input, output (optional)
+>   - [metadata_parser.py](/utils/metadata/metadata_parser.py): input, output (optional)
 > - /utils/preprocessor/
->   - csv_mapNmerge.py: base, label
->   - real_fake_csv_merger.py: real, fake, output (optional)
+>   - [csv_mapNmerge.py](/utils/preprocessor/csv_mapNmerge.py): base, label
+>   - [real_fake_csv_merger.py](/utils/preprocessor/real_fake_csv_merger.py): real, fake, output (optional)
