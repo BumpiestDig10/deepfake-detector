@@ -11,9 +11,14 @@ $ pip install -r allRequirements.txt
 
 $~$
 
+**To run the InceptionV3 Feature Extractor**
+```bash
+python -m utils.featureExtractor.InceptionV3_GlobalAvgPoolLayer_image_feature_extractor --input "relativePath/to/input_directory" --output "(OPTIONAL) relativePath/to/output_file"
+```
+
 **To run the Metadata Parser**
 ```bash
-python -m utils.metadata.metadata_parser --input "path/to/input_directory" --output "(OPTIONAL) path/to/output_file"
+python -m utils.metadata.metadata_parser --input "relativePath/to/input_directory" --output "(OPTIONAL) relativePath/to/output_file"
 ```
 
 **To run the Instagram Profile Downloader**
@@ -28,7 +33,7 @@ $~$
 - [ ] Integrate Central Logging
     - [ ] data-preprocessor
     - [ ] feature-extractor
-        - [ ] InceptionV3_GlobalAvgPoolLayer_image_feature_extractor
+        - [x] InceptionV3_GlobalAvgPoolLayer_image_feature_extractor
         - [ ] ResNet50_image_feature_extractor
     - [x] metadata
         - [x] fileTypeIdentifier
