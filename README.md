@@ -20,14 +20,15 @@ python -m utils.featureExtractor.InceptionV3_GlobalAvgPoolLayer_image_feature_ex
 ```bash
 python -m utils.featureExtractor.ResNet50_image_feature_extractor --input "relativePath/to/input_directory" --output "(OPTIONAL) relativePath/to/output_file"
 ```
-
+$~$
 **To run the Metadata Parser**
 ```bash
 python -m utils.metadata.metadata_parser --input "relativePath/to/input_directory" --output "(OPTIONAL) relativePath/to/output_file"
 ```
-
-**To run the Instagram Profile Downloader**
+$~$
+**To run the Instagram Profile Downloader** (no private accounts)
 - Change the username and password in the [script](utils/preprocessor/insta_profile_download.py) if needed. The one mentioned is a burner and may or may not work for you.
+- Create `instaProfile/usernames.txt` to sequentially download for each username mentioned. Not required for single profile.
 ```bash
 python -m utils.preprocessor.insta_profile_download
 ```
@@ -47,7 +48,7 @@ $~$
         - [ ] hf_to_image
         - [x] insta_profile_download
         - [ ] real_fake_csv_merger
-- [ ] Add `TARGET_USERNAME` file parser for [insta_profile_download](utils/preprocessor/insta_profile_download.py).
+- [x] Add `TARGET_USERNAME` file parser for [insta_profile_download](utils/preprocessor/insta_profile_download.py).
 - [ ] Merge metadata extractor, feature extractor, and preprocessors as a single unified tool.
 - [ ] Create a pipeline to generate deepfakes.
 - [ ] Issues:
