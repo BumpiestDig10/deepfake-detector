@@ -9,6 +9,13 @@ $ venv/Scripts/activate     # Windows
 $ pip install -r allRequirements.txt
 ```
 
+-------
+
+**To run the Deepfake Training Orchestrator** (Dashboard with all the tools)
+```bash
+python -m ui.dashboard
+```
+
 $~$
 
 **To run the InceptionV3 Feature Extractor**

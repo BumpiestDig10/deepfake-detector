@@ -31,7 +31,7 @@ FOLDER_MAP = {
     "Detection":         "models/",
 }
 
-BUTTON_WIDTH = 160   # px approximation for wrap calculation
+BUTTON_WIDTH = 400   # px approximation for wrap calculation
 WINDOW_WIDTH = 900
 
 COLORS = {
@@ -553,7 +553,7 @@ def build_panel(root: tk.Tk, parent: tk.Frame, name: str, grid_opts: dict):
         return
 
     # Wrapping button grid
-    cols = max(1, WINDOW_WIDTH // (BUTTON_WIDTH + 20))
+    cols = max(1, 2)
     folder = FOLDER_MAP[name]
 
     for idx, filename in enumerate(sorted(tools)):
