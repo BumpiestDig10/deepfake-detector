@@ -49,7 +49,7 @@ $~$
         - [x] insta_profile_download
         - [ ] real_fake_csv_merger
 - [x] Add `TARGET_USERNAME` file parser for [insta_profile_download](utils/preprocessor/insta_profile_download.py).
-- [ ] Merge metadata extractor, feature extractor, and preprocessors as a single unified tool.
+- [x] Merge metadata extractor, feature extractor, and preprocessors as a single unified tool.
 - [ ] Create a pipeline to generate deepfakes.
 - [ ] Issues:
     - [ ] Feature Extractor in Kali Linux is ending up in a dependency issue - tensorflow.
