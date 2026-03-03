@@ -3,8 +3,18 @@ import csv
 import json
 from datasets import load_dataset
 
+import centralLogging as cl
+logger = cl.get_logger(console_level="INFO", file_level="DEBUG")
+
 # Load the dataset
-dataset = load_dataset('mkhLlamaLearn/dfdcpics2', split='train') 
+try:
+    logger.info("Loading dataset")
+    dataset = load_dataset('mkhLlamaLearn/dfdcpics2', split='train') 
+    logger.info("Dataset loaded successfully.")
+except Exception as e:
+    logger.critical(f"Failed to load dataset: {e}")
+    exit(1)
+
 output_dir = "D:/02_Deepfake/dfdcpics2"
 os.makedirs(output_dir, exist_ok=True)
 
@@ -36,9 +46,9 @@ for i, item in enumerate(dataset):
         csv_rows.append([image_filename, i, item.get('label', ''), 
                         item.get('original', ''), item.get('source', '')])
         
-        print(f"Saved {image_path} with label: {item.get('label', 'N/A')}")
+        logger.debug(f"Saved {image_path} with label: {item.get('label', 'N/A')}")
     else:
-        print(f"Item {i} does not contain an image or image is None.")
+        logger.warning(f"Item {i} does not contain an image or image is None.")
 
 # Save metadata as CSV
 with open(csv_file, 'w', newline='', encoding='utf-8') as f:
@@ -50,5 +60,5 @@ with open(csv_file, 'w', newline='', encoding='utf-8') as f:
 with open(json_file, 'w', encoding='utf-8') as f:
     json.dump(metadata_list, f, indent=2, ensure_ascii=False)
 
-print(f"Saved {len(metadata_list)} images with metadata")
-print(f"Metadata saved to: {csv_file} and {json_file}")
+logger.info(f"Saved {len(metadata_list)} images with metadata")
+logger.info(f"Metadata saved to: {csv_file} and {json_file}")
