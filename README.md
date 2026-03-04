@@ -47,8 +47,8 @@ python -m utils.preprocessor.insta_profile_download
 **To run the Reddit Downloader**
 - This tool works as a Chrome extension to bypass Reddit login issues.
 - Downloads everything to the `Downloads/` folder.
-- Unsure how good import/export log works.
-```
+- Logs can be checked using Chrome's DevTools Console.
+```txt
 - Navigate to chrome://extensions/ using Google Chrome.
 - Enable Developer Mode.
 - Select "Load Unpacked".
