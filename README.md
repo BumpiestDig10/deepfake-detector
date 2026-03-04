@@ -16,8 +16,6 @@ $ pip install -r allRequirements.txt
 python -m ui.dashboard
 ```
 
-$~$
-
 **To run the InceptionV3 Feature Extractor**
 ```bash
 python -m utils.featureExtractor.InceptionV3_GlobalAvgPoolLayer_image_feature_extractor --input "relativePath/to/input_directory" --output "(OPTIONAL) relativePath/to/output_file"
@@ -28,19 +26,15 @@ python -m utils.featureExtractor.InceptionV3_GlobalAvgPoolLayer_image_feature_ex
 python -m utils.featureExtractor.ResNet50_image_feature_extractor --input "relativePath/to/input_directory" --output "(OPTIONAL) relativePath/to/output_file"
 ```
 
-$~$
-
 **To run the Metadata Parser**
 ```bash
 python -m utils.metadata.metadata_parser --input "relativePath/to/input_directory" --output "(OPTIONAL) relativePath/to/output_file"
 ```
 
-$~$
-
 **To download image datasets from Hugging Face**
 - Make sure to change the name and split of the dataset before running.
 ```bash
-python -m utils.preprocessor.hf_to_image
+python -m utils.preprocessor.hf_to_image --dataset "huggingFace/Dataset" --split "(OPTIONAL) train" --output "(OPTIONAL) relativePath/to/output_file" --token "(OPTIONAL) huggingFaceAccessToken"
 ```
 
 **To run the Instagram Profile Downloader** (no private accounts)
@@ -49,8 +43,6 @@ python -m utils.preprocessor.hf_to_image
 ```bash
 python -m utils.preprocessor.insta_profile_download
 ```
-
-$~$
 
 ### TODO: (for images branch)
 - [ ] Integrate Central Logging
@@ -66,7 +58,7 @@ $~$
         - [x] insta_profile_download
         - [ ] real_fake_csv_merger
 - [ ] Convert hard-coded or input based to args (for UI)
-    - [ ] hf_to_image
+    - [x] hf_to_image
     - [ ] insta_profile_download
 - [x] Add `TARGET_USERNAME` file parser for [insta_profile_download](utils/preprocessor/insta_profile_download.py).
 - [x] Merge metadata extractor, feature extractor, and preprocessors as a single unified tool.
@@ -102,8 +94,6 @@ $~$
 - [ ] Add support for scalpel. If embedded files steganography found, this will be used to extract all files.
 - [ ] Fix all README.
 
-$~$
-
 > [!NOTE]
 > **Args**:
 > - /utils/featureExtractor/
@@ -113,6 +103,7 @@ $~$
 >   - [metadata_parser.py](/utils/metadata/metadata_parser.py): input, output (optional)
 > - /utils/preprocessor/
 >   - [csv_mapNmerge.py](/utils/preprocessor/csv_mapNmerge.py): base, label
+>   - [hf_to_image.py](/utils/preprocessor/hf_to_image.py): dataset, split (optional), output (optional), token (optional)
 >   - [real_fake_csv_merger.py](/utils/preprocessor/real_fake_csv_merger.py): real, fake, output (optional)
 >
 > **Labels**:
