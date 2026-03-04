@@ -15,6 +15,7 @@ def main():
     parser.add_argument(
         "--dataset", "-d", "-input", "-i",
         type=str,
+        required=True,
         help="Hugging Face dataset name (mandatory, e.g. 'prithivMLmods/Deepfake-vs-Real')"
     )
     parser.add_argument(

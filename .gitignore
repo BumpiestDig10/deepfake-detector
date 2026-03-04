@@ -9,7 +9,6 @@ notebooks/.ipynb_checkpoints/
 *.docx
 *.pdf
 models/info.txt
-*.html
 *.pyc
 *.log
 instaProfiles/*
@@ -20,3 +19,4 @@ instaProfiles/*/*
 *.mp4
 *.xz
 hf_token.txt
+models/*.html
