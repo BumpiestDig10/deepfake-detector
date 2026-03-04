@@ -2,27 +2,23 @@
 <html>
 <head>
     <style>
-        body { width: 220px; padding: 10px; font-family: sans-serif; }
+        body { width: 250px; padding: 15px; font-family: sans-serif; }
         input { width: 100%; margin: 5px 0; padding: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; cursor: pointer; margin-top: 5px; border: none; color: white; border-radius: 4px; font-weight: bold; }
+        button { width: 100%; padding: 10px; cursor: pointer; margin-top: 8px; border: none; color: white; border-radius: 4px; font-weight: bold; }
         #subBtn { background-color: #ff4500; }
         #userBtn { background-color: #0079d3; }
         #stopBtn { background-color: #d93025; margin-top: 15px; }
-        hr { margin: 15px 0; border: 0; border-top: 1px solid #eee; }
-        #statusMessage { margin-top: 10px; font-size: 13px; color: #555; text-align: center; font-style: italic; }
+        #statusMessage { margin-top: 12px; font-size: 13px; color: #555; text-align: center; font-style: italic; border-top: 1px solid #eee; padding-top: 10px; }
     </style>
 </head>
 <body>
-    <input type="text" id="subInput" placeholder="Subreddit name (e.g. pics)">
-    <button id="subBtn">Download Subreddit</button>
+    <input type="text" id="subInput" placeholder="Subreddit (e.g. wallpaper)">
+    <button id="subBtn">Archive Subreddit</button>
     <hr>
     <input type="text" id="userInput" placeholder="Username">
-    <button id="userBtn">Download User Posts</button>
-    
-    <button id="stopBtn">Stop Downloading</button>
-    
-    <div id="statusMessage">Ready to start...</div>
-
+    <button id="userBtn">Archive User</button>
+    <button id="stopBtn">Stop Process</button>
+    <div id="statusMessage">Ready to archive...</div>
     <script src="popup.js"></script>
 </body>
 </html>
