@@ -32,7 +32,6 @@ python -m utils.metadata.metadata_parser --input "relativePath/to/input_director
 ```
 
 **To download image datasets from Hugging Face**
-- Make sure to change the name and split of the dataset before running.
 ```bash
 python -m utils.preprocessor.hf_to_image --dataset "huggingFace/Dataset" --split "(OPTIONAL) train" --output "(OPTIONAL) relativePath/to/output_directory" --token "(OPTIONAL) huggingFaceAccessToken"
 ```
