@@ -44,6 +44,16 @@ python -m utils.preprocessor.hf_to_image --dataset "huggingFace/Dataset" --split
 python -m utils.preprocessor.insta_profile_download
 ```
 
+**To run the Reddit Downloader**
+- This tool works as a Chrome extension to bypass Reddit login issues.
+- Downloads everything to the `Downloads/` folder.
+- Unsure how good import/export log works.
+```
+- Navigate to chrome://extensions/ using Google Chrome.
+- Enable Developer Mode.
+- Select "Load Unpacked".
+- Select the folder with all files of the extension. Default should be utils/preprocessor/reddit_downloader.
+```
 -------
 
 ### TODO: (for images branch)
