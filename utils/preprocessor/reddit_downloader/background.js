@@ -128,7 +128,7 @@ async function runBackfill(baseUrl, target, counters) {
             // Save whatever oldest_id we've reached before stopping
             await saveHistory(history);
             await chrome.storage.local.set({ isStopping: false });
-            sendStatus("Stopped by user. 🛑");
+            sendStatus("Stopped by user.");
             return;
         }
 
@@ -152,7 +152,7 @@ async function runBackfill(baseUrl, target, counters) {
             // No more posts — we've reached the very bottom
             targetHistory.profile_completed = true;
             await saveHistory(history);
-            sendStatus("Archive complete! All posts downloaded. 🎉");
+            sendStatus("Archive complete! All posts downloaded.");
             return;
         }
 
@@ -170,7 +170,7 @@ async function runBackfill(baseUrl, target, counters) {
             // Reddit gave us posts but no next-page token → bottom reached
             targetHistory.profile_completed = true;
             await saveHistory(history);
-            sendStatus("Archive complete! All posts downloaded. 🎉");
+            sendStatus("Archive complete! All posts downloaded.");
             return;
         }
 
@@ -242,7 +242,7 @@ async function startScraper(baseUrl, target) {
         const { stopped } = await runCatchUp(baseUrl, target, previousNewest, counters);
         if (stopped) {
             await chrome.storage.local.set({ isStopping: false });
-            sendStatus("Stopped by user. 🛑");
+            sendStatus("Stopped by user.");
             return;
         }
 
@@ -252,7 +252,7 @@ async function startScraper(baseUrl, target) {
             await delay(500);
             await runBackfill(baseUrl, target, counters);
         } else {
-            sendStatus("Catch-up complete! Archive was already fully backfilled. ✅");
+            sendStatus("Catch-up complete! Archive was already fully backfilled.");
         }
         return;
     }
@@ -260,7 +260,7 @@ async function startScraper(baseUrl, target) {
     // NO NEW POSTS — check whether backfill is complete
     if (latestPostId === th.newest_id) {
         if (th.profile_completed) {
-            sendStatus("Everything is up to date! ✅");
+            sendStatus("Everything is up to date!");
             return;
         }
 
