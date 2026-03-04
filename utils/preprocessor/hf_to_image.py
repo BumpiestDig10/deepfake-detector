@@ -74,8 +74,20 @@ def main():
         if 'image' in item and item['image'] is not None:
             image = item['image']
             image_filename = f"image_{i}.png"
-            image_path = os.path.join(output_dir, image_filename)
-            image.save(image_path)
+            if item.get('label') == 0:
+                if not os.path.exists(os.path.join(output_dir, "fake")):
+                    os.makedirs(os.path.join(output_dir, "fake"), exist_ok=True)
+                image_path = os.path.join(output_dir, "fake", image_filename)
+                #os.makedirs(os.path.dirname(image_path), exist_ok=True)
+                image.save(image_path)
+            elif item.get('label') == 1:
+                if not os.path.exists(os.path.join(output_dir, "real")):
+                    os.makedirs(os.path.join(output_dir, "real"), exist_ok=True)
+                image_path = os.path.join(output_dir, "real", image_filename)
+                image.save(image_path)
+            else:
+                image_path = os.path.join(output_dir, image_filename)
+                image.save(image_path)
 
             metadata = {
                 "image_filename": image_filename,
@@ -88,7 +100,9 @@ def main():
             metadata_list.append(metadata)
             csv_rows.append([image_filename, i, item.get('label', ''),
                             item.get('original', ''), item.get('source', '')])
-
+            
+            if i%100 == 0:
+                logger.info(f"Saved {i} items...")
             logger.debug(f"Saved {image_path} with label: {item.get('label', 'N/A')}")
         else:
             logger.warning(f"Item {i} does not contain an image or image is None.")
