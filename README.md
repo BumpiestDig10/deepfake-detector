@@ -23,7 +23,7 @@ python -m utils.featureExtractor.InceptionV3_GlobalAvgPoolLayer_image_feature_ex
 
 **To run the ResNet50 Feature Extractor**
 ```bash
-python -m utils.featureExtractor.ResNet50_image_feature_extractor --input "relativePath/to/input_directory" --output "(OPTIONAL) relativePath/to/output_file"
+python -m utils.featureExtractor.ResNet50_image_feature_extractor --input "relativePath/to/input_directory" --output "(OPTIONAL) relativePath/to/output_file" --weights "(OPTIONAL) imagenet"
 ```
 
 **To run the Metadata Parser**
@@ -53,6 +53,14 @@ python -m utils.preprocessor.insta_profile_download
 - Select "Load Unpacked".
 - Select the folder with all files of the extension. Default should be utils/preprocessor/reddit_downloader.
 ```
+
+**To find and delete duplicate files in a particular directory** (Windows-only)
+- Update the target folder in [duplicate_finder.ps1](utils\preprocessor\duplicate_finder.ps1).
+- Execute the script in powershell.
+    ```ps
+    $ ./utils/preprocessor/duplicate_finder.ps1 # From project root directory or
+    $ ./duplicate_finder.ps1                    # if CWD = utils/preprocessor/
+    ```
 -------
 
 ### TODO: (for images branch)
@@ -80,8 +88,17 @@ python -m utils.preprocessor.insta_profile_download
 - [ ] Start working on the Detector
     - [ ] Image Classifiers
         - [ ] ResNet50
+            - [ ] imagenet
+            - [ ] Open Images Dataset (by Google)
+            - [ ] COCO (Common Objects in Context)
         - [ ] InceptionV3 (different layers)
+            - [ ] imagenet
+            - [ ] Open Images Dataset (by Google)
+            - [ ] COCO (Common Objects in Context)
         - [ ] VGG16
+            - [ ] imagenet
+            - [ ] Open Images Dataset (by Google)
+            - [ ] COCO (Common Objects in Context)
         - [ ] [Custom CNN](https://www.analyticsvidhya.com/blog/2020/02/learn-image-classification-cnn-convolutional-neural-networks-3-datasets/#h-steps-to-build-an-image-classification-model-using-cnn)
     - [ ] Feature Extractors
         - [ ] ResNet50
@@ -108,7 +125,7 @@ python -m utils.preprocessor.insta_profile_download
 > **Args**:
 > - /utils/featureExtractor/
 >   - [InceptionV3_GlobalAvgPoolLayer_image_feature_extractor.py](/utils/featureExtractor/InceptionV3_GlobalAvgPoolLayer_image_feature_extractor.py): input, output (optional)
->   - [ResNet50_image_feature_extractor.py](/utils/featureExtractor/ResNet50_image_feature_extractor.py): input, output (optional)
+>   - [ResNet50_image_feature_extractor.py](/utils/featureExtractor/ResNet50_image_feature_extractor.py): input, output (optional), weights (optional)
 > - /utils/metadata/
 >   - [metadata_parser.py](/utils/metadata/metadata_parser.py): input, output (optional)
 > - /utils/preprocessor/

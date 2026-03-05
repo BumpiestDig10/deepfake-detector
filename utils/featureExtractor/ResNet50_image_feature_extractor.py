@@ -50,19 +50,19 @@ class GracefulKiller:
 class ResNet50FeatureExtractor:
     """Extract features from images using ResNet50 model"""
 
-    def __init__(self):
+    def __init__(self, model_weights: str = 'imagenet'):
         self.model = None
         self.feature_extractor = None
-        self.load_model()
+        self.load_model(model_weights)
 
-    def load_model(self):
+    def load_model(self, model_weights: str = 'imagenet'):
         """Load ResNet50 model and create feature extractor"""
         try:
             logger.debug("Loading ResNet50 model...")
 
             # Load the base ResNet50 model
             base_model = ResNet50(
-                weights='imagenet',
+                weights=model_weights,
                 include_top=False,
                 pooling='avg',  # Use global average pooling
                 input_shape=(224, 224, 3)
@@ -199,6 +199,12 @@ Examples:
         default=None,
         help='Path to output CSV file (optional, defaults to results/image_features/ResNet50_[timestamp].csv)'
     )
+    
+    parser.add_argument(
+        '--weights',
+        default='imagenet',
+        help='model weights to use (optional, defaults to imagenet)'
+    )
 
     args = parser.parse_args()
 
@@ -236,7 +242,7 @@ Examples:
         logger.info(f"Found {len(image_files)} image files")
 
         # Initialize feature extractor
-        feature_extractor = ResNet50FeatureExtractor()
+        feature_extractor = ResNet50FeatureExtractor(args.weights)
 
         # Process images in batches of 100
         batch_size = 100
