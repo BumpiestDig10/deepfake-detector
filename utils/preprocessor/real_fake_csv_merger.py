@@ -27,8 +27,8 @@ def merge_csv_with_class(real_csv_path, fake_csv_path, output_csv_path=None):
         print(f"Successfully loaded fake CSV from: {fake_csv_path}")
 
         # Add 'class' column with value 0 to the fake DataFrame
-        df_fake['class'] = 2
-        print("Added 'class' column with value 2 to fake data.")
+        df_fake['class'] = 0
+        print("Added 'class' column with value 0 to fake data.")
 
         # Concatenate (merge) the two DataFrames
         # The 'ignore_index=True' ensures a new, continuous index for the merged DataFrame

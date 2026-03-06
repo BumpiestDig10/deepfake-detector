@@ -15,7 +15,6 @@ instaProfiles/*
 instaProfiles/*/*
 *.jpg
 *.jpeg
-*.png
 *.mp4
 *.xz
 hf_token.txt

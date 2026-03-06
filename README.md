@@ -57,10 +57,15 @@ python -m utils.preprocessor.insta_profile_download
 **To find and delete duplicate files in a particular directory** (Windows-only)
 - Update the target folder in [duplicate_finder.ps1](utils\preprocessor\duplicate_finder.ps1).
 - Execute the script in powershell.
-    ```ps
+    ```bash
     $ ./utils/preprocessor/duplicate_finder.ps1 # From project root directory or
     $ ./duplicate_finder.ps1                    # if CWD = utils/preprocessor/
     ```
+
+**To Train a Random Forest Model**
+```bash
+python -m notebooks.RandomForestTrainer --input "path/to/features.csv" --output "(OPTIONAL) path/to/outputDirectory" --test_size (OPTIONAL) 0.2 --random_state (OPTIONAL) 420
+```
 -------
 
 ### TODO: (for images branch)
@@ -132,7 +137,39 @@ python -m utils.preprocessor.insta_profile_download
 >   - [csv_mapNmerge.py](/utils/preprocessor/csv_mapNmerge.py): base, label
 >   - [hf_to_image.py](/utils/preprocessor/hf_to_image.py): dataset, split (optional), output (optional), token (optional)
 >   - [real_fake_csv_merger.py](/utils/preprocessor/real_fake_csv_merger.py): real, fake, output (optional)
+> - /notebooks/
+>   - [RandomForestTrainer.py](/notebooks/RandomForestTrainer.py): input, output (optional), test_size (optional), random_state (optional)
 >
 > **Labels**:
 > - Real = 1
 > - Fake = 0
+
+## RESULTS
+
+### Model 1
+- Model Type: Random Forest
+- Dataset Type: Images
+- Dataset Size: 31,762
+    - Real: 15,364
+    - Fake: 16,398
+- Feature Extractor: ResNet50
+- Data Split:
+    - Train: 80%
+    - Test: 20%
+
+- **[Best Model](results/imageModels/ResNet50/32kModel/best_random_forest_model.joblib):**
+    - n_estimators: 200 | max_depth: 20 | min_samples_split: 5 | min_samples_leaf: 1 | max_features: sqrt | bootstrap: false
+    - [Report]()
+        - **Accuracy:** 0.84
+        - **Precision:** 0.84
+        - **F1 Score:** 0.84
+        - **MCC:** 0.6849507524194016
+        - **Cohen's Kappa:** 0.6849311698838436
+        - **Balanced Accuracy:** 0.8425499829355598
+        - **ROC-AUC (weighted ovr):** N/A
+
+**References:**
+- [JamieWithofs/Deepfake-and-real-images-4](https://huggingface.co/datasets/JamieWithofs/Deepfake-and-real-images-4)
+- [StyleGan-StyleGan2 Deepfake Face Images](https://www.kaggle.com/datasets/kshitizbhargava/deepfake-face-images)
+- [Fake-Vs-Real-Faces (Hard)](https://www.kaggle.com/datasets/hamzaboulahia/hardfakevsrealfaces)
+- Images scraped from Instagram and Reddit
