@@ -55,7 +55,7 @@ python -m utils.preprocessor.insta_profile_download
 ```
 
 **To find and delete duplicate files in a particular directory** (Windows-only)
-- Update the target folder in [duplicate_finder.ps1](utils\preprocessor\duplicate_finder.ps1).
+- Update the target folder in [duplicate_finder.ps1](utils/preprocessor/duplicate_finder.ps1).
 - Execute the script in powershell.
     ```bash
     $ ./utils/preprocessor/duplicate_finder.ps1 # From project root directory or
@@ -159,7 +159,7 @@ python -m notebooks.RandomForestTrainer --input "path/to/features.csv" --output 
 
 - **[Best Model](results/imageModels/ResNet50/32kModel/best_random_forest_model.joblib):**
     - n_estimators: 200 | max_depth: 20 | min_samples_split: 5 | min_samples_leaf: 1 | max_features: sqrt | bootstrap: false
-    - [Report]()
+    - [Report](results/imageModels/ResNet50/32kModel/classification_report.txt)
         - **Accuracy:** 0.84
         - **Precision:** 0.84
         - **F1 Score:** 0.84
