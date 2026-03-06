@@ -154,19 +154,19 @@ python -m notebooks.RandomForestTrainer --input "path/to/features.csv" --output 
     - Fake: 16,398
 - Feature Extractor: ResNet50
 - Data Split:
-    - Train: 80%
-    - Test: 20%
+    - Train: 80% (25409 images)
+    - Test: 20% (6353 images)
 
-- **[Best Model](results/imageModels/ResNet50/32kModel/best_random_forest_model.joblib):**
+- **[Best Model](results/imageModels/ResNet50/32kModel/best_random_forest_model.joblib)**
     - n_estimators: 200 | max_depth: 20 | min_samples_split: 5 | min_samples_leaf: 1 | max_features: sqrt | bootstrap: false
     - [Report](results/imageModels/ResNet50/32kModel/classification_report.txt)
-        - **Accuracy:** 0.84
-        - **Precision:** 0.84
-        - **F1 Score:** 0.84
-        - **MCC:** 0.6849507524194016
-        - **Cohen's Kappa:** 0.6849311698838436
-        - **Balanced Accuracy:** 0.8425499829355598
-        - **ROC-AUC (weighted ovr):** N/A
+        - Accuracy: 0.84
+        - Precision: 0.84
+        - F1 Score: 0.84
+        - MCC: 0.6849507524194016
+        - Cohen's Kappa: 0.6849311698838436
+        - Balanced Accuracy: 0.8425499829355598
+        - ROC-AUC (weighted ovr): N/A
 
 **References:**
 - [JamieWithofs/Deepfake-and-real-images-4](https://huggingface.co/datasets/JamieWithofs/Deepfake-and-real-images-4)
