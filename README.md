@@ -69,6 +69,7 @@ python -m notebooks.RandomForestTrainer --input "path/to/features.csv" --output 
 -------
 
 ### TODO: (for images branch)
+- [ ] Move ToDo to GitHub Projects
 - [ ] Integrate Central Logging
     - [x] feature-extractor
         - [x] InceptionV3_GlobalAvgPoolLayer_image_feature_extractor
@@ -87,9 +88,6 @@ python -m notebooks.RandomForestTrainer --input "path/to/features.csv" --output 
 - [x] Add `TARGET_USERNAME` file parser for [insta_profile_download](utils/preprocessor/insta_profile_download.py).
 - [x] Merge metadata extractor, feature extractor, and preprocessors as a single unified tool.
 - [ ] Create a pipeline to generate deepfakes.
-- [ ] Issues:
-    - [ ] Feature Extractor in Kali Linux is ending up in a dependency issue - tensorflow.
-    - [ ] insta_profile_download creates a new folder in root for saving photos and videos instead of putting them in `instaProfiles/photos` or `instaProfiles/videos`.
 - [ ] Start working on the Detector
     - [ ] Feature Extractors
         - [ ] ResNet50
