@@ -91,25 +91,19 @@ python -m notebooks.RandomForestTrainer --input "path/to/features.csv" --output 
     - [ ] Feature Extractor in Kali Linux is ending up in a dependency issue - tensorflow.
     - [ ] insta_profile_download creates a new folder in root for saving photos and videos instead of putting them in `instaProfiles/photos` or `instaProfiles/videos`.
 - [ ] Start working on the Detector
-    - [ ] Image Classifiers
-        - [ ] ResNet50
-            - [ ] imagenet
-            - [ ] Open Images Dataset (by Google)
-            - [ ] COCO (Common Objects in Context)
-        - [ ] InceptionV3 (different layers)
-            - [ ] imagenet
-            - [ ] Open Images Dataset (by Google)
-            - [ ] COCO (Common Objects in Context)
-        - [ ] VGG16
-            - [ ] imagenet
-            - [ ] Open Images Dataset (by Google)
-            - [ ] COCO (Common Objects in Context)
-        - [ ] [Custom CNN](https://www.analyticsvidhya.com/blog/2020/02/learn-image-classification-cnn-convolutional-neural-networks-3-datasets/#h-steps-to-build-an-image-classification-model-using-cnn)
     - [ ] Feature Extractors
         - [ ] ResNet50
+            - [ ] imagenet
+            - [ ] Open Images Dataset (by Google)
+            - [ ] COCO (Common Objects in Context)
         - [ ] InceptionV3 (different layers)
+            - [ ] imagenet
+            - [ ] Open Images Dataset (by Google)
+            - [ ] COCO (Common Objects in Context)
         - [ ] [VGG16](https://stackoverflow.com/questions/56876348/how-many-features-is-vgg16-supposed-to-extract-when-used-as-a-pre-trained-featur)
-        - [ ] Custom CNN
+            - [ ] imagenet
+            - [ ] Open Images Dataset (by Google)
+            - [ ] COCO (Common Objects in Context)
     - [ ] Feature Classifiers
         - [ ] Random Forest
         - [ ] XGBoost
@@ -122,6 +116,8 @@ python -m notebooks.RandomForestTrainer --input "path/to/features.csv" --output 
         - [ ] Gaussian Mixture Models
         - [ ] Hierarchical Clustering
         - [ ] DBSCAN
+    - [ ] Image Classifiers
+        - [ ] [Custom CNN](https://www.analyticsvidhya.com/blog/2020/02/learn-image-classification-cnn-convolutional-neural-networks-3-datasets/#h-steps-to-build-an-image-classification-model-using-cnn)
 - [ ] Add time and resource consumption modules.
 - [ ] Add support for scalpel. If embedded files steganography found, this will be used to extract all files.
 - [ ] Fix all README.
@@ -163,13 +159,48 @@ python -m notebooks.RandomForestTrainer --input "path/to/features.csv" --output 
         - Accuracy: 0.84
         - Precision: 0.84
         - F1 Score: 0.84
-        - MCC: 0.6849507524194016
+        - Matthews Correlation Coefficient: 0.6849507524194016
         - Cohen's Kappa: 0.6849311698838436
         - Balanced Accuracy: 0.8425499829355598
         - ROC-AUC (weighted ovr): N/A
 
-**References:**
+**Datasets Used:**
 - [JamieWithofs/Deepfake-and-real-images-4](https://huggingface.co/datasets/JamieWithofs/Deepfake-and-real-images-4)
 - [StyleGan-StyleGan2 Deepfake Face Images](https://www.kaggle.com/datasets/kshitizbhargava/deepfake-face-images)
 - [Fake-Vs-Real-Faces (Hard)](https://www.kaggle.com/datasets/hamzaboulahia/hardfakevsrealfaces)
 - Images scraped from Instagram and Reddit
+
+### Model 2
+- Model Type: 
+- Dataset Type: Images
+- Dataset Size: 
+    - Real: 
+    - Fake: 
+- Feature Extractor: 
+- Data Split:
+    - Train: 
+    - Test: 
+
+- **[Best Model] < link >**
+    - n_estimators:  | max_depth:  | min_samples_split:  | min_samples_leaf:  | max_features:  | bootstrap: 
+    - [Report] < link >
+        - Accuracy: 
+        - Precision: 
+        - F1 Score: 
+        - Matthews Correlation Coefficient: 
+        - Cohen's Kappa: 
+        - Balanced Accuracy: 
+        - ROC-AUC (weighted ovr): 
+
+**Datasets Used**
+- [Stable Diffusion Face Dataset](https://www.kaggle.com/datasets/mohannadaymansalah/stable-diffusion-dataaaaaaaaa?resource=download)
+- [metfaces-dataset](https://github.com/NVlabs/metfaces-dataset)
+- [Human Images Dataset - Men and Women](https://www.kaggle.com/datasets/snmahsa/human-images-dataset-men-and-women)
+- [A Generated Face Dataset: AGFD-20K](https://github.com/Robin-WZQ/AGFD-20K)
+- [Academic Dataset by Generated Photos](https://generated.photos/datasets/academic)
+- [Celebrity Face Image Dataset](https://www.kaggle.com/datasets/vishesh1412/celebrity-face-image-dataset)
+- [CelebaHQ](https://github.com/tkarras/progressive_growing_of_gans)
+- [SSHQ-1.0](https://github.com/stylegan-human/StyleGAN-Human) Password: StylisH-HumanS-hq_1.0
+- [SFHQ-T2I: Synthetic Faces from Text 2 Image models](https://www.kaggle.com/datasets/selfishgene/sfhq-t2i-synthetic-faces-from-text-2-image-models)
+
+- [ffhq-dataset](https://github.com/NVlabs/ffhq-dataset) Thumbnails Only

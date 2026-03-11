@@ -41,7 +41,7 @@ except ImportError as e:
 
 def load_dataset(file_path):
     """Load dataset from a CSV file."""
-    logger.info(f"=== Loading dataset from {file_path} ===")
+    logger.info(f"Loading dataset from {file_path}")
     try:
         df = pd.read_csv(file_path)
         logger.info(f"Dataset loaded successfully!")
@@ -82,7 +82,7 @@ def split_data(df, test_size=0.2, random_state=420):
         X = df.drop(columns=['label', 'class'], errors='ignore')
         y = df['label'] if 'label' in df.columns else df['class']
         
-        logger.info(f"Target distribution:{y.value_counts()}")
+        logger.info(f"Target distribution: {y.value_counts()}")
         
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state, stratify=y)
         logger.info(f"Dataset split: {X_train.shape[0]} training samples, {X_test.shape[0]} test samples")
@@ -96,13 +96,25 @@ def split_data(df, test_size=0.2, random_state=420):
         
 def parameter_setup():
     """Define hyperparameters for Random Forest."""
-    param_grid = {
+    
+    '''
+    param_grid_1 = {
         'n_estimators': [100, 200, 300],
         'max_depth': ["None", 10, 20, 30],
         'min_samples_split': [2, 5, 10],
         'min_samples_leaf': [1, 2, 4],
         'max_features': ['sqrt', 'log2', None],
         'bootstrap': [True, False]
+    }
+    '''
+    
+    param_grid = {
+        'n_estimators': [150, 200, 250],
+        'max_depth': [None, 15, 20, 25],
+        'min_samples_split': [2, 5, 10],
+        'min_samples_leaf': [1, 4, 6],
+        'max_features': [None, 0.2, 0.4, 'sqrt'],
+        'bootstrap': [False]
     }
 
     # Create all combinations of hyperparameters
@@ -138,7 +150,7 @@ def train_random_forest(X_train, X_test, y_train, y_test, param_combinations):
             max_features=max_features,
             bootstrap=bootstrap,
             random_state=420,
-            n_jobs=-1,
+            n_jobs=-2,
             verbose=1
         )
 
@@ -378,44 +390,76 @@ def main():
         )
     args = parser.parse_args()
     
-    file_path = args.input
+    #test_size = args.test_size
+    #random_state = args.random_state
+    #file_path = args.input
     outputDir = args.output
-    test_size = args.test_size
-    random_state = args.random_state
+    
     # Create output directory if it doesn't exist
     os.makedirs(outputDir, exist_ok=True)
     
-    df = load_dataset(file_path)
+    df = load_dataset(args.input)
     df = drop_unnecessary_columns(df)
     
-    X_train, X_test, y_train, y_test = split_data(df, test_size=test_size, random_state=random_state)
+    X_train, X_test, y_train, y_test = split_data(df, test_size=args.test_size, random_state=args.random_state)
     
     param_combinations, param_grid = parameter_setup()
     
-    best_model, best_params, results = train_random_forest(X_train, X_test, y_train, y_test, param_combinations)
-    
-    save_results(results, param_grid, best_params, outputDir)
-    save_best_model(best_model, outputDir)
-    best_model_analysis(best_model, X_test, y_test, outputDir)
-    
     try:
-        plot_roc_curves(best_model, X_test, y_test, outputDir)
-    except Exception as e:
-        logger.error(f"Error plotting ROC curves: {e}")
-    try:
-        plot_precision_recall_curves(best_model, X_test, y_test, outputDir)
-    except Exception as e:
-        logger.error(f"Error plotting Precision-Recall curves: {e}")
-    try:
-        plot_calibration_curves(best_model, X_test, y_test, outputDir)
-    except Exception as e:
-        logger.error(f"Error plotting Calibration curves: {e}")
-    try:
-        feature_importance(best_model, X_train, outputDir)
-    except Exception as e:
-        logger.error(f"Error plotting Feature Importance: {e}")
-
-    logger.info("=== Random Forest training completed ===")
+        best_model, best_params, results = train_random_forest(X_train, X_test, y_train, y_test, param_combinations)
+        
+        save_results(results, param_grid, best_params, outputDir)
+        save_best_model(best_model, outputDir)
+        best_model_analysis(best_model, X_test, y_test, outputDir)
+        
+        try:
+            plot_roc_curves(best_model, X_test, y_test, outputDir)
+        except Exception as e:
+            logger.error(f"Error plotting ROC curves: {e}")
+        try:
+            plot_precision_recall_curves(best_model, X_test, y_test, outputDir)
+        except Exception as e:
+            logger.error(f"Error plotting Precision-Recall curves: {e}")
+        try:
+            plot_calibration_curves(best_model, X_test, y_test, outputDir)
+        except Exception as e:
+            logger.error(f"Error plotting Calibration curves: {e}")
+        try:
+            feature_importance(best_model, X_train, outputDir)
+        except Exception as e:
+            logger.error(f"Error plotting Feature Importance: {e}")
+    except KeyboardInterrupt:
+        logger.warning("!! Training interrupted by user !!")
+        
+        try:
+            save_results(results, param_grid, best_params, outputDir)
+            save_best_model(best_model, outputDir)
+            best_model_analysis(best_model, X_test, y_test, outputDir)
+        except (best_params is None or best_model is None) as e:
+            logger.warning("No model trained yet, skipping save and analysis: {e}")
+            exit(0)
+        except Exception as e:
+            logger.error(f"Error during save/analysis after interruption: {e}")
+            exit(1)
+        
+        try:
+            plot_roc_curves(best_model, X_test, y_test, outputDir)
+        except Exception as e:
+            logger.error(f"Error plotting ROC curves: {e}")
+        try:
+            plot_precision_recall_curves(best_model, X_test, y_test, outputDir)
+        except Exception as e:
+            logger.error(f"Error plotting Precision-Recall curves: {e}")
+        try:
+            plot_calibration_curves(best_model, X_test, y_test, outputDir)
+        except Exception as e:
+            logger.error(f"Error plotting Calibration curves: {e}")
+        try:
+            feature_importance(best_model, X_train, outputDir)
+        except Exception as e:
+            logger.error(f"Error plotting Feature Importance: {e}")
+    finally:
+        logger.info("=== Random Forest training completed ===")
     
 if __name__ == "__main__":
     main()
