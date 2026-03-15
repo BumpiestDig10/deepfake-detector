@@ -34,6 +34,7 @@ try:
     # Visualization
     import matplotlib.pyplot as plt
     import seaborn as sns
+    from utils.filehash import get_file_hash
     logger.debug("All libraries imported successfully.")
 except ImportError as e:
     logger.error(f"Error importing libraries: {e}")
@@ -284,6 +285,18 @@ def save_best_model(best_model, outputDir):
         model_path = os.path.join(outputDir, "best_random_forest_model.joblib")
         joblib.dump(best_model, model_path)
         logger.info(f"Best model saved to {model_path}")
+        
+        model_hash = get_file_hash(model_path)
+        logger.info(f"Best Model's SHA256 Hash: {model_hash}")
+        hash_output_path = f"{model_path}.sha256"
+        
+        try:
+            with open(hash_output_path, "w") as f:
+                f.write(model_hash)
+            logger.info(f"Model hash saved to: {hash_output_path}")
+        except Exception as e:
+            logger.error(f"Error saving model hash: {e}")
+
     except Exception as e:
         logger.error(f"Error saving best model: {e}")
 
