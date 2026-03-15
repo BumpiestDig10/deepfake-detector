@@ -84,8 +84,8 @@ python -m notebooks.RandomForestTrainer --input "path/to/features.csv" --output 
         - [ ] Target username (single and file)
         - [ ] Output directory
 - [ ] Create a pipeline to generate deepfakes.
-- [ ] Calculate and save hash of output model files.
-    - [ ] [RandomForestTrainer](notebooks/RandomForestTrainer.py)
+- [x] Calculate and save hash of output model files.
+    - [x] [RandomForestTrainer](notebooks/RandomForestTrainer.py)
 - [ ] Start working on the Detector
     - [ ] Feature Extractors
         - [ ] ResNet50
@@ -150,9 +150,9 @@ python -m notebooks.RandomForestTrainer --input "path/to/features.csv" --output 
     - Train: 80% (25409 images)
     - Test: 20% (6353 images)
 
-- **[Best Model](results/imageModels/ResNet50/32kModel/best_random_forest_model.joblib)**
+- **[Best Model](results/imageModels/ResNet50_imagenet/32kModel/best_random_forest_model.joblib)**
     - n_estimators: 150 | max_depth: null | min_samples_split: 5 | min_samples_leaf: 1 | max_features: 0.2 | bootstrap: false
-    - [Report](results/imageModels/ResNet50/32kModel/classification_report.txt)
+    - [Report](results/imageModels/ResNet50_imagenet/32kModel/classification_report.txt)
         - Accuracy: 0.854
         - Precision: 0.854
         - F1 Score: 0.854
