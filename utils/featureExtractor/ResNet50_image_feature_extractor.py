@@ -71,7 +71,7 @@ class ResNet50FeatureExtractor:
             # The model with global average pooling already applied
             self.feature_extractor = base_model
 
-            logger.info("Model loaded successfully!")
+            logger.info(f"Model loaded successfully! Using weights: {model_weights}")
             logger.info(f"Feature vector size: {base_model.output_shape[1]} dimensions")
 
         except Exception as e:
