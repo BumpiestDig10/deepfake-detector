@@ -16,6 +16,11 @@ $ pip install -r allRequirements.txt
 python -m ui.dashboard
 ```
 
+**To calculate SHA256 hash of a file**
+```bash
+python -m utils.filehash --input "path/to/inputFile"
+```
+
 **To run the InceptionV3 Feature Extractor**
 ```bash
 python -m utils.featureExtractor.InceptionV3_GlobalAvgPoolLayer_image_feature_extractor --input "relativePath/to/input_directory" --output "(OPTIONAL) relativePath/to/output_file"
@@ -69,7 +74,7 @@ python -m notebooks.RandomForestTrainer --input "path/to/features.csv" --output 
 -------
 
 ### TODO: (for images branch)
-- [ ] Move ToDo to GitHub Projects
+- [ ] Copy ToDo to GitHub Projects
 - [ ] Integrate Central Logging
     - [ ] preprocessor
         - [ ] [csv_mapNmerge](utils/preprocessor/csv_mapNmerge.py)
@@ -84,11 +89,11 @@ python -m notebooks.RandomForestTrainer --input "path/to/features.csv" --output 
 - [ ] Start working on the Detector
     - [ ] Feature Extractors
         - [ ] ResNet50
-            - [ ] imagenet
+            - [x] imagenet
             - [ ] Open Images Dataset (by Google)
             - [ ] COCO (Common Objects in Context)
         - [ ] InceptionV3 (different layers)
-            - [ ] imagenet
+            - [x] imagenet
             - [ ] Open Images Dataset (by Google)
             - [ ] COCO (Common Objects in Context)
         - [ ] [VGG16](https://stackoverflow.com/questions/56876348/how-many-features-is-vgg16-supposed-to-extract-when-used-as-a-pre-trained-featur)
@@ -115,6 +120,7 @@ python -m notebooks.RandomForestTrainer --input "path/to/features.csv" --output 
 
 > [!NOTE]
 > **Args**:
+> - [filehash.py](utils/filehash.py): input
 > - /utils/featureExtractor/
 >   - [InceptionV3_GlobalAvgPoolLayer_image_feature_extractor.py](/utils/featureExtractor/InceptionV3_GlobalAvgPoolLayer_image_feature_extractor.py): input, output (optional)
 >   - [ResNet50_image_feature_extractor.py](/utils/featureExtractor/ResNet50_image_feature_extractor.py): input, output (optional), weights (optional)
@@ -139,20 +145,20 @@ python -m notebooks.RandomForestTrainer --input "path/to/features.csv" --output 
 - Dataset Size: 31,762
     - Real: 15,364
     - Fake: 16,398
-- Feature Extractor: ResNet50
+- Feature Extractor: ResNet50 (imagenet)
 - Data Split:
     - Train: 80% (25409 images)
     - Test: 20% (6353 images)
 
 - **[Best Model](results/imageModels/ResNet50/32kModel/best_random_forest_model.joblib)**
-    - n_estimators: 200 | max_depth: 20 | min_samples_split: 5 | min_samples_leaf: 1 | max_features: sqrt | bootstrap: false
+    - n_estimators: 150 | max_depth: null | min_samples_split: 5 | min_samples_leaf: 1 | max_features: 0.2 | bootstrap: false
     - [Report](results/imageModels/ResNet50/32kModel/classification_report.txt)
-        - Accuracy: 0.84
-        - Precision: 0.84
-        - F1 Score: 0.84
-        - Matthews Correlation Coefficient: 0.6849507524194016
-        - Cohen's Kappa: 0.6849311698838436
-        - Balanced Accuracy: 0.8425499829355598
+        - Accuracy: 0.854
+        - Precision: 0.854
+        - F1 Score: 0.854
+        - Matthews Correlation Coefficient: 0.7070566271285679
+        - Cohen's Kappa: 0.7070160654228586
+        - Balanced Accuracy: 0.8536314517473194
         - ROC-AUC (weighted ovr): N/A
 
 **Datasets Used:**

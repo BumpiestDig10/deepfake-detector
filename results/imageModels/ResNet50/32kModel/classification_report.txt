@@ -1,13 +1,13 @@
               precision    recall  f1-score   support
 
-           0       0.85      0.84      0.85      3280
-           1       0.83      0.84      0.84      3073
+           0       0.86      0.85      0.86      3280
+           1       0.84      0.85      0.85      3073
 
-    accuracy                           0.84      6353
-   macro avg       0.84      0.84      0.84      6353
-weighted avg       0.84      0.84      0.84      6353
+    accuracy                           0.85      6353
+   macro avg       0.85      0.85      0.85      6353
+weighted avg       0.85      0.85      0.85      6353
 
-MCC:	0.6849507524194016
-Cohen's Kappa:	0.6849311698838436
-Balanced Accuracy:	0.8425499829355598
+MCC:	0.7070566271285679
+Cohen's Kappa:	0.7070160654228586
+Balanced Accuracy:	0.8536314517473194
 ROC-AUC (weighted ovr):	N/A
