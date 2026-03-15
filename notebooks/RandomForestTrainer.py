@@ -107,8 +107,8 @@ def parameter_setup():
         'bootstrap': [True, False]
     }
     '''
-    
-    param_grid = {
+    '''
+    param_grid_2 = {
         'n_estimators': [150, 200, 250],
         'max_depth': [None, 15, 20, 25],
         'min_samples_split': [2, 5, 10],
@@ -116,7 +116,17 @@ def parameter_setup():
         'max_features': [None, 0.2, 0.4, 'sqrt'],
         'bootstrap': [False]
     }
-
+    '''
+    
+    param_grid = {
+        'n_estimators': [150, 175, 200],
+        'max_depth': [None],
+        'min_samples_split': [5],
+        'min_samples_leaf': [1],
+        'max_features': [0.1, 0.2, 0.3, 0.4],
+        'bootstrap': [False]
+    }
+    
     # Create all combinations of hyperparameters
     param_combinations = list(itertools.product(
         param_grid['n_estimators'],
@@ -140,49 +150,50 @@ def train_random_forest(X_train, X_test, y_train, y_test, param_combinations):
     best_model = None
     best_params = None
 
-    for idx, params in enumerate(param_combinations):
-        n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features, bootstrap = params
-        model = RandomForestClassifier(
-            n_estimators=n_estimators,
-            max_depth=max_depth,
-            min_samples_split=min_samples_split,
-            min_samples_leaf=min_samples_leaf,
-            max_features=max_features,
-            bootstrap=bootstrap,
-            random_state=420,
-            n_jobs=-2,
-            verbose=1
-        )
+    try:
+        for idx, params in enumerate(param_combinations):
+            n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features, bootstrap = params
+            model = RandomForestClassifier(
+                n_estimators=n_estimators,
+                max_depth=max_depth,
+                min_samples_split=min_samples_split,
+                min_samples_leaf=min_samples_leaf,
+                max_features=max_features,
+                bootstrap=bootstrap,
+                random_state=420,
+                n_jobs=-2,
+                verbose=1
+            )
 
-        try:
-            logger.info(f"Training model #{idx+1}/{len(param_combinations)}")
-            model.fit(X_train, y_train)
-        except Exception as e:
-            logger.error(f"Error training model with params {params}: {e}")
-            continue
-        
-        y_pred = model.predict(X_test)
-        f1 = f1_score(y_test, y_pred, average='weighted')
-
-        results.append({
-            'params': params,
-            'accuracy': accuracy_score(y_test, y_pred),
-            'precision': precision_score(y_test, y_pred, average='weighted'),
-            'recall': recall_score(y_test, y_pred, average='weighted'),
-            'f1_score': f1
-        })
-        
-        logger.info(f"[{idx+1}/{len(param_combinations)}]\tAccuracy: {accuracy_score(y_test, y_pred):.4f} | Precision: {precision_score(y_test, y_pred, average='weighted'):.4f} | Recall: {recall_score(y_test, y_pred, average='weighted'):.4f} | F1 Score: {f1:.4f} | Params: {params}")
-
-        if f1 > best_score:
-            best_score = f1
-            best_model = model
-            best_params = params
-            logger.info(f"Best Model Updated | F1: {best_score}")
-        else:
-            logger.debug(f"No improvement. Current best F1: {best_score} for params: {best_params}")
+            try:
+                logger.info(f"Training model #{idx+1}/{len(param_combinations)}")
+                model.fit(X_train, y_train)
+            except Exception as e:
+                logger.error(f"Error training model with params {params}: {e}")
+                continue
             
-    return best_model, best_params, results
+            y_pred = model.predict(X_test)
+            f1 = f1_score(y_test, y_pred, average='weighted')
+
+            results.append({
+                'params': params,
+                'accuracy': accuracy_score(y_test, y_pred),
+                'precision': precision_score(y_test, y_pred, average='weighted'),
+                'recall': recall_score(y_test, y_pred, average='weighted'),
+                'f1_score': f1
+            })
+            
+            logger.info(f"[{idx+1}/{len(param_combinations)}]\tAccuracy: {accuracy_score(y_test, y_pred):.4f} | Precision: {precision_score(y_test, y_pred, average='weighted'):.4f} | Recall: {recall_score(y_test, y_pred, average='weighted'):.4f} | F1 Score: {f1:.4f} | Params: {params}")
+
+            if f1 > best_score:
+                best_score = f1
+                best_model = model
+                best_params = params
+                logger.info(f"Best Model Updated | F1: {best_score}")
+            else:
+                logger.debug(f"No improvement. Current best F1: {best_score} for params: {best_params}")
+    finally:
+        return best_model, best_params, results
 
 def plot_roc_curves(best_model, X_test, y_test, outputDir):
     classes = best_model.classes_
@@ -190,6 +201,9 @@ def plot_roc_curves(best_model, X_test, y_test, outputDir):
     y_bin   = label_binarize(y_test, classes=classes)
 
     plt.figure(figsize=(10, 7))
+    plt.title("ROC Curves (Per Class)")
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
 
     for i, cls in enumerate(classes):
         fpr, tpr, _ = roc_curve(y_bin[:, i], y_prob[:, i])
@@ -197,9 +211,6 @@ def plot_roc_curves(best_model, X_test, y_test, outputDir):
         plt.plot(fpr, tpr, label=f"Class {cls} (AUC = {auc_score:.2f})")
 
     plt.plot([0, 1], [0, 1], 'k--', label="Random Classifier")
-    plt.xlabel("False Positive Rate")
-    plt.ylabel("True Positive Rate")
-    plt.title("ROC Curves (Per Class)")
     plt.legend(loc="lower right")
     plt.tight_layout()
     plt.savefig(f"{outputDir}/roc_curves.png")
@@ -213,14 +224,14 @@ def plot_precision_recall_curves(best_model, X_test, y_test, outputDir):
     y_bin   = label_binarize(y_test, classes=classes)
 
     plt.figure(figsize=(10, 7))
+    plt.title("Precision-Recall Curves (Per Class)")
+    plt.xlabel("Recall")
+    plt.ylabel("Precision")
 
     for i, cls in enumerate(classes):
         precision, recall, _ = precision_recall_curve(y_bin[:, i], y_prob[:, i])
         plt.plot(recall, precision, label=f"Class {cls}")
 
-    plt.xlabel("Recall")
-    plt.ylabel("Precision")
-    plt.title("Precision-Recall Curves (Per Class)")
     plt.legend(loc="lower left")
     plt.tight_layout()
     plt.savefig(f"{outputDir}/precision_recall_curves.png")
@@ -234,15 +245,16 @@ def plot_calibration_curves(best_model, X_test, y_test, outputDir):
     y_bin   = label_binarize(y_test, classes=classes)
 
     plt.figure(figsize=(10, 7))
+    plt.title("Calibration Curves (Per Class)")
+    plt.xlabel("Mean Predicted Probability")
+    plt.ylabel("Fraction of Positives")
+    
     plt.plot([0, 1], [0, 1], 'k--', label="Perfectly Calibrated")
 
     for i, cls in enumerate(classes):
         fraction_pos, mean_pred = calibration_curve(y_bin[:, i], y_prob[:, i], n_bins=10)
         plt.plot(mean_pred, fraction_pos, marker='o', label=f"Class {cls}")
 
-    plt.xlabel("Mean Predicted Probability")
-    plt.ylabel("Fraction of Positives")
-    plt.title("Calibration Curves (Per Class)")
     plt.legend(loc="upper left")
     plt.tight_layout()
     plt.savefig(f"{outputDir}/calibration_curves.png")
@@ -282,10 +294,11 @@ def feature_importance(best_model, X, outputDir):
     top_features = feature_importances.sort_values(ascending=False).head(20)
 
     plt.figure(figsize=(12, 6))
-    sns.barplot(x=top_features.values, y=top_features.index, palette='viridis')
     plt.title("Feature Importance")
     plt.xlabel("Importance")
     plt.ylabel("Feature")
+    
+    sns.barplot(x=top_features.values, y=top_features.index, palette='viridis')
     plt.tight_layout()
     plt.savefig(f"{outputDir}/feature_importance.png")
     plt.show()
@@ -350,10 +363,11 @@ def best_model_analysis(best_model, X_test, y_test, outputDir):
     # Confusion matrix
     cm = confusion_matrix(y_test, y_pred)
     plt.figure(figsize=(8, 6))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
     plt.title("Best Model Confusion Matrix")
     plt.xlabel("Predicted")
     plt.ylabel("Actual")
+    
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
     plt.tight_layout()
     plt.savefig(f"{outputDir}/confusion_matrix.png")
     plt.show()
@@ -405,6 +419,7 @@ def main():
     
     param_combinations, param_grid = parameter_setup()
     
+    best_model, best_params, results = None, None, []
     try:
         best_model, best_params, results = train_random_forest(X_train, X_test, y_train, y_test, param_combinations)
         
