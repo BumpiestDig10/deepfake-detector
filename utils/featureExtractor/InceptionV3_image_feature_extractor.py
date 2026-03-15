@@ -50,19 +50,19 @@ class GracefulKiller:
 class InceptionV3FeatureExtractor:
     """Extract features from images using Inception V3 model"""
 
-    def __init__(self):
+    def __init__(self, weights):
         self.model = None
         self.feature_extractor = None
-        self.load_model()
+        self.load_model(weights)
 
-    def load_model(self):
+    def load_model(self, weights: str = 'imagenet'):
         """Load Inception V3 model and create feature extractor"""
         try:
             logger.debug("Loading Inception V3 model...")
 
             # Load the base Inception V3 model
             base_model = InceptionV3(
-                weights='imagenet',
+                weights=weights,
                 include_top=False,
                 pooling='avg',  # Use global average pooling
                 input_shape=(299, 299, 3)
@@ -71,7 +71,7 @@ class InceptionV3FeatureExtractor:
             # The model with global average pooling already applied
             self.feature_extractor = base_model
 
-            logger.debug("Model loaded successfully!")
+            logger.info(f"Model loaded successfully! Weights: {weights}")
             logger.info(f"Feature vector size: {base_model.output_shape[1]} dimensions")
 
         except Exception as e:
@@ -197,6 +197,12 @@ Examples:
         default=None,
         help='Path to output CSV file (optional, defaults to results/image_features/Inception_[timestamp].csv)'
     )
+    
+    parser.add_argument(
+        '--weights',
+        default='imagenet',
+        help='Weights to load into the Inception V3 model (default: imagenet)'
+    )
 
     args = parser.parse_args()
 
@@ -234,7 +240,7 @@ Examples:
         logger.debug(f"Found {len(image_files)} image files")
 
         # Initialize feature extractor
-        feature_extractor = InceptionV3FeatureExtractor()
+        feature_extractor = InceptionV3FeatureExtractor(args.weights)
 
         # Process images in batches of 100
         batch_size = 100

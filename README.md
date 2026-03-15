@@ -23,7 +23,7 @@ python -m utils.filehash --input "path/to/inputFile"
 
 **To run the InceptionV3 Feature Extractor**
 ```bash
-python -m utils.featureExtractor.InceptionV3_GlobalAvgPoolLayer_image_feature_extractor --input "relativePath/to/input_directory" --output "(OPTIONAL) relativePath/to/output_file"
+python -m utils.featureExtractor.InceptionV3_image_feature_extractor --input "relativePath/to/input_directory" --output "(OPTIONAL) relativePath/to/output_file" --weights "(OPTIONAL) imagenet"
 ```
 
 **To run the ResNet50 Feature Extractor**
@@ -122,7 +122,7 @@ python -m notebooks.RandomForestTrainer --input "path/to/features.csv" --output 
 > **Args**:
 > - [filehash.py](utils/filehash.py): input
 > - /utils/featureExtractor/
->   - [InceptionV3_GlobalAvgPoolLayer_image_feature_extractor.py](/utils/featureExtractor/InceptionV3_GlobalAvgPoolLayer_image_feature_extractor.py): input, output (optional)
+>   - [InceptionV3_image_feature_extractor.py](/utils/featureExtractor/InceptionV3_image_feature_extractor.py): input, output (optional), weights (optional)
 >   - [ResNet50_image_feature_extractor.py](/utils/featureExtractor/ResNet50_image_feature_extractor.py): input, output (optional), weights (optional)
 > - /utils/metadata/
 >   - [metadata_parser.py](/utils/metadata/metadata_parser.py): input, output (optional)
