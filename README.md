@@ -75,17 +75,11 @@ python -m notebooks.RandomForestTrainer --input "path/to/features.csv" --output 
 
 ### TODO: (for images branch)
 - [ ] Copy ToDo to GitHub Projects
-- [ ] Integrate Central Logging
-    - [ ] preprocessor
-        - [ ] [csv_mapNmerge](utils/preprocessor/csv_mapNmerge.py)
-        - [ ] [real_fake_csv_merger](utils/preprocessor/real_fake_csv_merger.py)
 - [ ] Convert hard-coded or input based to args (for UI)
     - [ ] [insta_profile_download](utils/preprocessor/insta_profile_download.py)
         - [ ] Target username (single and file)
         - [ ] Output directory
 - [ ] Create a pipeline to generate deepfakes.
-- [x] Calculate and save hash of output model files.
-    - [x] [RandomForestTrainer](notebooks/RandomForestTrainer.py)
 - [ ] Start working on the Detector
     - [ ] Feature Extractors
         - [ ] ResNet50

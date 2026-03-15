@@ -20,6 +20,10 @@ from typing import Dict, List, Tuple, Optional
 
 import pandas as pd
 
+import centralLogging as cl
+
+logger = cl.get_logger(console_level = "INFO", file_level = "DEBUG")
+
 
 class GracefulKiller:
     """Handle graceful termination signals"""
@@ -31,7 +35,7 @@ class GracefulKiller:
 
     def exit_gracefully(self, signum, frame):
         """Set flag for graceful termination"""
-        print(f"\nReceived signal {signum}. Initiating graceful shutdown...")
+        logger.warning(f"Received signal {signum}. Initiating graceful shutdown...")
         self.kill_now = True
 
 
@@ -66,29 +70,32 @@ class CSVLabelMerger:
         elif label_str in ['fake', '0', '0.0']:
             return 0
         else:
-            print(f"Warning: Unknown label '{label}' - skipping")
+            logger.warning(f"!! Unknown label '{label}' - skipping !!")
             return None
 
     def load_and_validate_csv(self, filepath: str, csv_type: str) -> pd.DataFrame:
         """Load and validate CSV file"""
         if not os.path.exists(filepath):
-            raise FileNotFoundError(f"{csv_type} CSV file not found: {filepath}")
+            logger.critical(f"{csv_type.capitalize()} CSV file not found: {filepath}")
+            exit(1)
         
         try:
             df = pd.read_csv(filepath)
             if df.empty:
-                raise ValueError(f"{csv_type} CSV file is empty: {filepath}")
+                logger.critical(f"{csv_type.capitalize()} CSV file is empty: {filepath}")
+                exit(1)
             return df
         except Exception as e:
-            raise ValueError(f"Error reading {csv_type} CSV file: {e}")
+            logger.error(f"Error reading {csv_type} CSV file: {e}")
+            exit(1)
 
     def get_column_choice(self, df: pd.DataFrame, csv_type: str, default_name: str) -> str:
         """Get user's choice for filename column"""
         columns = list(df.columns)
         
-        print(f"\nAvailable columns in {csv_type} CSV:")
+        logger.info(f"Available columns in {csv_type} CSV:")
         for i, col in enumerate(columns, 1):
-            print(f"  {i}. {col}")
+            logger.info(f"  {i}. {col}")
         
         prompt = f"Enter the header name for filename in {csv_type} CSV (default: '{default_name}'): "
         user_input = input(prompt).strip()
@@ -98,23 +105,23 @@ class CSVLabelMerger:
             if default_name in columns:
                 return default_name
             else:
-                print(f"Default '{default_name}' not found, using first column: '{columns[0]}'")
+                logger.warning(f"Default '{default_name}' not found, using first column: '{columns[0]}'")
                 return columns[0]
         
         # Validate user input
         if user_input in columns:
             return user_input
         else:
-            print(f"Column '{user_input}' not found, using first column: '{columns[0]}'")
+            logger.warning(f"Column '{user_input}' not found, using first column: '{columns[0]}'")
             return columns[0]
 
     def get_label_column_choice(self, df: pd.DataFrame) -> str:
         """Get user's choice for label column in metadata CSV"""
         columns = list(df.columns)
         
-        print(f"\nAvailable columns in metadata CSV for labels:")
+        logger.info(f"Available columns in metadata CSV for labels:")
         for i, col in enumerate(columns, 1):
-            print(f"  {i}. {col}")
+            logger.info(f"  {i}. {col}")
         
         prompt = "Enter the header name for class labels in metadata CSV: "
         user_input = input(prompt).strip()
@@ -122,34 +129,34 @@ class CSVLabelMerger:
         if user_input in columns:
             return user_input
         else:
-            print(f"Column '{user_input}' not found. Please try again.")
+            logger.warning(f"Column '{user_input}' not found. Please try again.")
             return self.get_label_column_choice(df)
 
     def load_data(self):
         """Load both CSV files and get column selections"""
-        print("Loading CSV files...")
+        logger.info("Loading CSV files...")
         
         # Load base CSV
         self.base_df = self.load_and_validate_csv(self.base_csv, "base")
-        print(f"Base CSV loaded: {len(self.base_df)} rows, {len(self.base_df.columns)} columns")
+        logger.info(f"Base CSV loaded: {len(self.base_df)} rows, {len(self.base_df.columns)} columns")
         
         # Load label CSV
         self.label_df = self.load_and_validate_csv(self.label_csv, "metadata")
-        print(f"Metadata CSV loaded: {len(self.label_df)} rows, {len(self.label_df.columns)} columns")
+        logger.info(f"Metadata CSV loaded: {len(self.label_df)} rows, {len(self.label_df.columns)} columns")
         
         # Get column selections
         self.base_filename_col = self.get_column_choice(self.base_df, "base", "filename")
         self.label_filename_col = self.get_column_choice(self.label_df, "metadata", "filename")
         self.label_class_col = self.get_label_column_choice(self.label_df)
         
-        print(f"\nSelected columns:")
-        print(f"  Base filename column: '{self.base_filename_col}'")
-        print(f"  Metadata filename column: '{self.label_filename_col}'")
-        print(f"  Metadata label column: '{self.label_class_col}'")
+        logger.info(f"Selected columns:")
+        logger.info(f"  Base filename column: '{self.base_filename_col}'")
+        logger.info(f"  Metadata filename column: '{self.label_filename_col}'")
+        logger.info(f"  Metadata label column: '{self.label_class_col}'")
 
     def build_filename_to_label_mapping(self):
         """Build mapping from filename to label"""
-        print("\nBuilding filename to label mapping...")
+        logger.debug("Building filename to label mapping...")
         
         for idx, row in self.label_df.iterrows():
             filename = self.extract_filename(str(row[self.label_filename_col]))
@@ -158,21 +165,21 @@ class CSVLabelMerger:
             if label is not None:
                 self.filename_to_label[filename] = label
         
-        print(f"Created mapping for {len(self.filename_to_label)} filenames")
+        logger.debug(f"Created mapping for {len(self.filename_to_label)} filenames")
         
         # Show label distribution
         label_counts = {}
         for label in self.filename_to_label.values():
             label_counts[label] = label_counts.get(label, 0) + 1
         
-        print("Label distribution:")
+        logger.info("Label distribution:")
         for label, count in label_counts.items():
             label_name = "real" if label == 1 else "fake"
-            print(f"  {label_name} ({label}): {count}")
+            logger.info(f"  {label_name} ({label}): {count}")
 
     def process_and_save(self, output_path: str):
         """Process base CSV and save with class labels"""
-        print(f"\nProcessing base CSV and saving to: {output_path}")
+        logger.info(f"Processing base CSV and saving to: {output_path}")
         
         # Prepare output dataframe
         output_df = self.base_df.copy()
@@ -193,19 +200,19 @@ class CSVLabelMerger:
         matched = output_df['class'].notna().sum()
         total = len(output_df)
         
-        print(f"Matched labels for {matched}/{total} files")
+        logger.info(f"Matched labels for {matched}/{total} files")
         if matched < total:
-            print(f"Warning: {total - matched} files have no matching labels")
+            logger.warning(f"Warning: {total - matched} files have no matching labels")
         
         # Save to CSV
         output_df.to_csv(output_path, index=False)
-        print(f"Results saved to: {output_path}")
+        logger.info(f"Results saved to: {output_path}")
         
         return matched, total
 
     def process_and_save_batch(self, output_path: str, killer: GracefulKiller):
         """Process base CSV and save in batches of 100"""
-        print(f"\nProcessing base CSV in batches and saving to: {output_path}")
+        logger.info(f"Processing base CSV in batches and saving to: {output_path}")
         
         batch_size = 100
         total_rows = len(self.base_df)
@@ -223,7 +230,7 @@ class CSVLabelMerger:
             for start_idx in range(0, total_rows, batch_size):
                 # Check for graceful termination
                 if killer.kill_now:
-                    print(f"\nGraceful termination requested. Processed {processed_rows}/{total_rows} rows.")
+                    logger.info(f"Graceful termination requested. Processed {processed_rows}/{total_rows} rows.")
                     break
                 
                 end_idx = min(start_idx + batch_size, total_rows)
@@ -256,12 +263,12 @@ class CSVLabelMerger:
                 
                 processed_rows += len(batch_df)
                 
-                print(f"Processed batch: {processed_rows}/{total_rows} rows (matched: {batch_matched}/{len(batch_df)})")
+                logger.info(f"Processed batch: {processed_rows}/{total_rows} rows (matched: {batch_matched}/{len(batch_df)})")
         
-        print(f"\nProcessing completed!")
-        print(f"Total processed: {processed_rows}/{total_rows}")
-        print(f"Total matched: {matched_count}/{processed_rows}")
-        print(f"Results saved to: {output_path}")
+        logger.info(f"Processing completed!")
+        logger.info(f" Total processed: {processed_rows}/{total_rows}")
+        logger.info(f" Total matched: {matched_count}/{processed_rows}")
+        logger.info(f" Results saved to: {output_path}")
         
         return matched_count, processed_rows
 
@@ -294,20 +301,20 @@ Examples:
     
     # Validate input files
     if not os.path.isfile(args.base):
-        print(f"Error: Base CSV file does not exist: {args.base}")
+        logger.error(f"Base CSV file does not exist: {args.base}")
         sys.exit(1)
     
     if not os.path.isfile(args.label):
-        print(f"Error: Label CSV file does not exist: {args.label}")
+        logger.error(f"Label CSV file does not exist: {args.label}")
         sys.exit(1)
     
     # Generate output filename
     base_path = Path(args.base)
     output_path = base_path.parent / f"{base_path.stem}_combined.csv"
     
-    print(f"Base CSV file: {args.base}")
-    print(f"Label CSV file: {args.label}")
-    print(f"Output file: {output_path}")
+    logger.info(f"Base CSV file: {args.base}")
+    logger.info(f"Label CSV file: {args.label}")
+    logger.info(f"Output file: {output_path}")
     
     # Initialize graceful killer
     killer = GracefulKiller()
@@ -325,20 +332,20 @@ Examples:
         # Process and save with batch processing
         matched, total = merger.process_and_save_batch(str(output_path), killer)
         
-        print(f"\n{'='*50}")
-        print(f"Label merging completed!")
-        print(f"Files processed: {total}")
-        print(f"Labels matched: {matched}")
-        print(f"Output saved to: {output_path}")
-        print(f"{'='*50}")
+        logger.info(f"{'='*50}")
+        logger.info(f"Label merging completed!")
+        logger.info(f"Files processed: {total}")
+        logger.info(f"Labels matched: {matched}")
+        logger.info(f"Output saved to: {output_path}")
+        logger.info(f"{'='*50}")
         
     except KeyboardInterrupt:
-        print("\nInterrupted by user. Progress has been saved.")
+        logger.warning("Interrupted by user. Progress has been saved.")
     except Exception as e:
-        print(f"\nError during processing: {e}")
+        logger.error(f"Error during processing: {e}")
         sys.exit(1)
     finally:
-        print("\nCleanup completed.")
+        logger.info("Cleanup completed.")
 
 
 if __name__ == "__main__":

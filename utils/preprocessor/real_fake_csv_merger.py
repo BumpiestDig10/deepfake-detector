@@ -3,6 +3,10 @@ import argparse
 import os
 from datetime import datetime
 
+import centralLogging as cl
+
+logger = cl.get_logger(console_level = "INFO", file_level = "DEBUG")
+
 def merge_csv_with_class(real_csv_path, fake_csv_path, output_csv_path=None):
     """
     Merges two CSV files, adding a 'class' column to each before merging.
@@ -16,46 +20,49 @@ def merge_csv_with_class(real_csv_path, fake_csv_path, output_csv_path=None):
     try:
         # Load the real CSV file
         df_real = pd.read_csv(real_csv_path)
-        print(f"Successfully loaded real CSV from: {real_csv_path}")
+        logger.info(f"Successfully loaded real CSV from: {real_csv_path}")
 
         # Add 'class' column with value 1 to the real DataFrame
         df_real['class'] = 1
-        print("Added 'class' column with value 1 to real data.")
+        logger.info("Added 'class' column with value 1 to real data.")
 
         # Load the fake CSV file
         df_fake = pd.read_csv(fake_csv_path)
-        print(f"Successfully loaded fake CSV from: {fake_csv_path}")
+        logger.info(f"Successfully loaded fake CSV from: {fake_csv_path}")
 
         # Add 'class' column with value 0 to the fake DataFrame
         df_fake['class'] = 0
-        print("Added 'class' column with value 0 to fake data.")
+        logger.info("Added 'class' column with value 0 to fake data.")
 
         # Concatenate (merge) the two DataFrames
         # The 'ignore_index=True' ensures a new, continuous index for the merged DataFrame
         merged_df = pd.concat([df_real, df_fake], ignore_index=True)
-        print("Successfully merged real and fake dataframes.")
+        logger.debug("Successfully merged real and fake dataframes.")
 
         # Determine the output path
         if output_csv_path is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             output_csv_path = f"./combined_{timestamp}.csv"
-            print(f"Output path not specified. Defaulting to: {output_csv_path}")
+            logger.warning(f"Output path not specified. Defaulting to: {output_csv_path}")
 
         # Save the merged DataFrame to the specified output path
         merged_df.to_csv(output_csv_path, index=False) # index=False prevents writing DataFrame index as a column
-        print(f"Merged CSV saved successfully to: {output_csv_path}")
+        logger.info(f"Merged CSV saved successfully to: {output_csv_path}")
 
     except FileNotFoundError as e:
-        print(f"Error: One of the specified CSV files was not found. {e}")
+        logger.critical(f"Error: One of the specified CSV files was not found. {e}")
+        exit(1)  # Exit with a non-zero code to indicate an error
     except pd.errors.EmptyDataError:
-        print("Error: One of the CSV files is empty.")
+        logger.critical(f"Error: One of the CSV files is empty. {e}")
+        exit(1)  # Exit with a non-zero code to indicate an error
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        logger.error(f"An unexpected error occurred: {e}")
+        exit(1)  # Exit with a non-zero code to indicate an error
 
 if __name__ == "__main__":
     # Set up argument parser
     parser = argparse.ArgumentParser(
-        description="Merge two CSV files, adding a 'class' column (1 for real, 2 for fake)."
+        description="Merge two CSV files, adding a 'class' column (1 for real, 0 for fake)."
     )
 
     # Add arguments
