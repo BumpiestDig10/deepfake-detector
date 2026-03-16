@@ -200,6 +200,10 @@ def plot_roc_curves(best_model, X_test, y_test, outputDir):
     classes = best_model.classes_
     y_prob  = best_model.predict_proba(X_test)
     y_bin   = label_binarize(y_test, classes=classes)
+    
+    if len(classes) == 2:
+        # Column 0 is negative (1 - y_bin), Column 1 is positive (y_bin)
+        y_bin = np.hstack([1 - y_bin, y_bin])
 
     plt.figure(figsize=(10, 7))
     plt.title("ROC Curves (Per Class)")
@@ -223,6 +227,10 @@ def plot_precision_recall_curves(best_model, X_test, y_test, outputDir):
     classes = best_model.classes_
     y_prob  = best_model.predict_proba(X_test)
     y_bin   = label_binarize(y_test, classes=classes)
+    
+    if len(classes) == 2:
+        # Column 0 is negative (1 - y_bin), Column 1 is positive (y_bin)
+        y_bin = np.hstack([1 - y_bin, y_bin])
 
     plt.figure(figsize=(10, 7))
     plt.title("Precision-Recall Curves (Per Class)")
@@ -244,6 +252,10 @@ def plot_calibration_curves(best_model, X_test, y_test, outputDir):
     classes = best_model.classes_
     y_prob  = best_model.predict_proba(X_test)
     y_bin   = label_binarize(y_test, classes=classes)
+    
+    if len(classes) == 2:
+        # Column 0 is negative (1 - y_bin), Column 1 is positive (y_bin)
+        y_bin = np.hstack([1 - y_bin, y_bin])
 
     plt.figure(figsize=(10, 7))
     plt.title("Calibration Curves (Per Class)")

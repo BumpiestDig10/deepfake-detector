@@ -12,6 +12,7 @@ $ pip install -r allRequirements.txt
 -------
 
 **To run the Deepfake Training Orchestrator** (Dashboard with all the tools)
+- On the dashboard, paramaeters for all tools will have "Browse Files" and "Browse Folders" buttons, be smart about what you should actually input.
 ```bash
 python -m ui.dashboard
 ```
