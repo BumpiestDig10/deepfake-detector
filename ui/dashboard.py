@@ -27,8 +27,9 @@ FOLDER_MAP = {
     "Preprocessor":      "utils/preprocessor/",
     "Metadata":          "utils/metadata/",
     "Feature Extractor": "utils/featureExtractor/",
+    "Other Utils":       "utils/",
     "Training":          "notebooks/",
-    "Detection":         "models/",
+    "Detection":         "detectors/",
 }
 
 BUTTON_WIDTH = 400   # px approximation for wrap calculation
@@ -81,6 +82,7 @@ def scan_tools(panel_name: str) -> list[str]:
     if not os.path.isdir(folder):
         return []
 
+    '''
     if panel_name == "Detection":
         exts = {".joblib", ".cbm"}
         return [
@@ -92,7 +94,11 @@ def scan_tools(panel_name: str) -> list[str]:
             f for f in os.listdir(folder)
             if f.endswith(".py") and f != "__init__.py"
         ]
-
+    '''
+    return [
+        f for f in os.listdir(folder)
+        if f.endswith(".py") and f != "__init__.py"
+    ]
 
 # ═══════════════════════════════════════════════════════════════════
 #  AST INSPECTOR
@@ -176,7 +182,7 @@ def open_parameter_modal(root: tk.Tk, filepath: str):
 
     if is_tool_running or is_exiting:
         messagebox.showwarning(
-            "⚠️  Task Running",
+            "Task Running",
             "Please wait for the current task to finish."
         )
         return
@@ -184,7 +190,7 @@ def open_parameter_modal(root: tk.Tk, filepath: str):
     args = extract_arguments(filepath)
 
     modal = tk.Toplevel(root)
-    modal.title(f"⚡ {os.path.basename(filepath)}")
+    modal.title(f"{os.path.basename(filepath)}")
     modal.configure(bg=COLORS["bg"])
     modal.grab_set()
     modal.resizable(False, False)
@@ -525,7 +531,7 @@ def on_exit(root: tk.Tk):
 # ═══════════════════════════════════════════════════════════════════
 def build_panel(root: tk.Tk, parent: tk.Frame, name: str, grid_opts: dict):
     tools = scan_tools(name)
-    is_detection = (name == "Detection")
+    #is_detection = (name == "Detection")
 
     frame = tk.LabelFrame(
         parent,
@@ -560,6 +566,7 @@ def build_panel(root: tk.Tk, parent: tk.Frame, name: str, grid_opts: dict):
         row = idx // cols
         col = idx % cols
 
+        '''
         if is_detection:
             lbl = tk.Label(
                 frame, text=filename,
@@ -589,6 +596,26 @@ def build_panel(root: tk.Tk, parent: tk.Frame, name: str, grid_opts: dict):
             )
             btn.grid(row=row, column=col, padx=3, pady=3, sticky="ew")
             _bind_hover(btn)
+        '''
+        filepath = os.path.join(folder, filename)
+
+        btn = tk.Button(
+            frame,
+            text=filename,
+            font=FONT_BUTTON,
+            bg=COLORS["btn"], fg=COLORS["text"],
+            activebackground=COLORS["btn_hover"],
+            activeforeground=COLORS["accent"],
+            relief="flat", bd=0,
+            padx=8, pady=5,
+            cursor="hand2",
+            command=lambda fp=filepath: open_parameter_modal(root, fp),
+            wraplength=BUTTON_WIDTH,
+            justify="left",
+            anchor="w"
+        )
+        btn.grid(row=row, column=col, padx=3, pady=3, sticky="ew")
+        _bind_hover(btn)
 
 
 def _bind_hover(btn: tk.Button):
@@ -638,8 +665,9 @@ def build_dashboard():
         ("Preprocessor",     {"row": 0, "column": 0}),
         ("Metadata",         {"row": 0, "column": 1}),
         ("Feature Extractor",{"row": 0, "column": 2}),
-        ("Training",         {"row": 1, "column": 0}),
-        ("Detection",        {"row": 1, "column": 1, "columnspan": 2}),
+        ("Other Utils",      {"row": 1, "column": 0}),
+        ("Training",         {"row": 1, "column": 1, "columnspan": 2}),
+        ("Detection",        {"row": 2, "column": 0, "columnspan": 3}),
     ]
 
     for name, opts in panel_layout:

@@ -22,6 +22,13 @@ python -m ui.dashboard
 python -m utils.filehash --input "path/to/inputFile"
 ```
 
+**To use the detector**
+- Input may be a single image, multiple images, a folder containing image(s), or a csv file containing features (headers must be ranging from "feature_0" to "feature_2047").
+```bash
+python -m detectors.2048FeatureDetector --input "path/to/input" --modelPath "path/to/model.joblib" --featureExtractor "(OPTIONAL) ResNet50 OR InceptionV3" --weights "(OPTIONAL) imagenet" --output "(OPTIONAL) path/to/outputDirectory"
+# --modelPath is optional if "results/imageModels/ResNet50_imagenet/32kModel/best_random_forest_model.joblib" exists.
+```
+
 **To run the InceptionV3 Feature Extractor**
 ```bash
 python -m utils.featureExtractor.InceptionV3_image_feature_extractor --input "relativePath/to/input_directory" --output "(OPTIONAL) relativePath/to/output_file" --weights "(OPTIONAL) imagenet"
@@ -76,6 +83,7 @@ python -m notebooks.RandomForestTrainer --input "path/to/features.csv" --output 
 
 ### TODO: (for images branch)
 - [ ] Copy ToDo to GitHub Projects
+- [ ] fix batching and general processing for [2048FeaturesDetector.py](detectors/2048FeaturesDetector.py)
 - [ ] Convert hard-coded or input based to args (for UI)
     - [ ] [insta_profile_download](utils/preprocessor/insta_profile_download.py)
         - [ ] Target username (single and file)
@@ -116,6 +124,7 @@ python -m notebooks.RandomForestTrainer --input "path/to/features.csv" --output 
 > [!NOTE]
 > **Args**:
 > - [filehash.py](utils/filehash.py): input
+> - [2048FeaturesDetector.py](detectors/2048FeaturesDetector.py): input, modelPath, featureExtractor (optional), weights (optional), output (optional)
 > - /utils/featureExtractor/
 >   - [InceptionV3_image_feature_extractor.py](/utils/featureExtractor/InceptionV3_image_feature_extractor.py): input, output (optional), weights (optional)
 >   - [ResNet50_image_feature_extractor.py](/utils/featureExtractor/ResNet50_image_feature_extractor.py): input, output (optional), weights (optional)
