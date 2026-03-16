@@ -28,7 +28,7 @@ FOLDER_MAP = {
     "Metadata":          "utils/metadata/",
     "Feature Extractor": "utils/featureExtractor/",
     "Other Utils":       "utils/",
-    "Training":          "notebooks/",
+    "Training":          "trainers/",
     "Detection":         "detectors/",
 }
 

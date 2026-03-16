@@ -77,13 +77,13 @@ python -m utils.preprocessor.insta_profile_download
 
 **To Train a Random Forest Model**
 ```bash
-python -m notebooks.RandomForestTrainer --input "path/to/features.csv" --output "(OPTIONAL) path/to/outputDirectory" --test_size (OPTIONAL) 0.2 --random_state (OPTIONAL) 420
+python -m trainers.RandomForestTrainer --input "path/to/features.csv" --output "(OPTIONAL) path/to/outputDirectory" --test_size (OPTIONAL) 0.2 --random_state (OPTIONAL) 420
 ```
 -------
 
 ### TODO: (for images branch)
 - [ ] Copy ToDo to GitHub Projects
-- [ ] fix batching and general processing for [2048FeaturesDetector.py](detectors/2048FeaturesDetector.py)
+- [ ] fix batch processing for [2048FeaturesDetector.py](detectors/2048FeaturesDetector.py)
 - [ ] Convert hard-coded or input based to args (for UI)
     - [ ] [insta_profile_download](utils/preprocessor/insta_profile_download.py)
         - [ ] Target username (single and file)
@@ -134,8 +134,8 @@ python -m notebooks.RandomForestTrainer --input "path/to/features.csv" --output 
 >   - [csv_mapNmerge.py](/utils/preprocessor/csv_mapNmerge.py): base, label
 >   - [hf_to_image.py](/utils/preprocessor/hf_to_image.py): dataset, split (optional), output (optional), token (optional)
 >   - [real_fake_csv_merger.py](/utils/preprocessor/real_fake_csv_merger.py): real, fake, output (optional)
-> - /notebooks/
->   - [RandomForestTrainer.py](/notebooks/RandomForestTrainer.py): input, output (optional), test_size (optional), random_state (optional)
+> - /trainers/
+>   - [RandomForestTrainer.py](/trainers/RandomForestTrainer.py): input, output (optional), test_size (optional), random_state (optional)
 >
 > **Labels**:
 > - Real = 1

@@ -4,6 +4,7 @@ utils/metadata-parser/test_files/
 utils/feature-extractor/results/
 dataset/
 notebooks/.ipynb_checkpoints/
+trainers/.ipynb_checkpoints/
 *.csv
 *.doc
 *.docx
