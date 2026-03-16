@@ -83,7 +83,8 @@ python -m trainers.RandomForestTrainer --input "path/to/features.csv" --output "
 
 ### TODO: (for images branch)
 - [ ] Copy ToDo to GitHub Projects
-- [ ] fix batch processing for [2048FeaturesDetector.py](detectors/2048FeaturesDetector.py)
+- [ ] Fix batch processing for [2048FeaturesDetector.py](detectors/2048FeaturesDetector.py)
+- [ ] Add resource consumption checks for different stages of [2048FeaturesDetector.py](detectors/2048FeaturesDetector.py)
 - [ ] Convert hard-coded or input based to args (for UI)
     - [ ] [insta_profile_download](utils/preprocessor/insta_profile_download.py)
         - [ ] Target username (single and file)
@@ -163,7 +164,6 @@ python -m trainers.RandomForestTrainer --input "path/to/features.csv" --output "
         - Matthews Correlation Coefficient: 0.7070566271285679
         - Cohen's Kappa: 0.7070160654228586
         - Balanced Accuracy: 0.8536314517473194
-        - ROC-AUC (weighted ovr): N/A
 
 **Datasets Used:**
 - [JamieWithofs/Deepfake-and-real-images-4](https://huggingface.co/datasets/JamieWithofs/Deepfake-and-real-images-4)
@@ -205,3 +205,7 @@ python -m trainers.RandomForestTrainer --input "path/to/features.csv" --output "
 - [SFHQ-T2I: Synthetic Faces from Text 2 Image models](https://www.kaggle.com/datasets/selfishgene/sfhq-t2i-synthetic-faces-from-text-2-image-models)
 
 - [ffhq-dataset](https://github.com/NVlabs/ffhq-dataset) Thumbnails Only
+
+-------
+> [!NOTE]
+> This project is under the MIT license but the datasets used may have different licenses and you will have to comply with them all when using any of the trained models from this repository.
