@@ -166,7 +166,25 @@ python -m trainers.XGBoostTrainer --input "path/to/features.csv" --output "(OPTI
 
 ## RESULTS
 
-### Model 1
+### 32k Models
+
+| Attribute | Value |
+| :--- | :--- |
+| **Model** | [Random Forest](results/imageModels/ResNet50_imagenet/32kModel/best_random_forest_model.joblib) |
+| **Dataset Type** | Images |
+| **Dataset Size** | 31,762 (Real: 15,364, Fake: 16,398) |
+| **Feature Extractor** | ResNet50 (imagenet) |
+| **Data Split** | Train: 80% (25,409 images)<br>Test: 20% (6,353 images) |
+| **params** | n_estimators: 150<br>max_depth: null<br>min_samples_split: 5<br>min_samples_leaf: 1<br>max_features: 0.2<br>bootstrap: false |
+| **Report Path** | [Classification Report](results/imageModels/ResNet50_imagenet/32kModel/classification_report.txt) |
+| **Accuracy** | 0.854 |
+| **Precision** | 0.854 |
+| **F1 Score** | 0.854 |
+| **Matthews Correlation Coefficient** | 0.7070566271285679 |
+| **Cohen's Kappa** | 0.7070160654228586 |
+| **Balanced Accuracy** | 0.8536314517473194 |
+
+<!--
 - Model Type: Random Forest
 - Dataset Type: Images
 - Dataset Size: 31,762
@@ -186,6 +204,7 @@ python -m trainers.XGBoostTrainer --input "path/to/features.csv" --output "(OPTI
         - Matthews Correlation Coefficient: 0.7070566271285679
         - Cohen's Kappa: 0.7070160654228586
         - Balanced Accuracy: 0.8536314517473194
+!-->
 
 **Datasets Used:**
 - [JamieWithofs/Deepfake-and-real-images-4](https://huggingface.co/datasets/JamieWithofs/Deepfake-and-real-images-4)
@@ -193,27 +212,24 @@ python -m trainers.XGBoostTrainer --input "path/to/features.csv" --output "(OPTI
 - [Fake-Vs-Real-Faces (Hard)](https://www.kaggle.com/datasets/hamzaboulahia/hardfakevsrealfaces)
 - Images scraped from Instagram and Reddit
 
-### Model 2
-- Model Type: 
-- Dataset Type: Images
-- Dataset Size: 
-    - Real: 
-    - Fake: 
-- Feature Extractor: 
-- Data Split:
-    - Train: 
-    - Test: 
+<!---
 
-- **[Best Model] < link >**
-    - n_estimators:  | max_depth:  | min_samples_split:  | min_samples_leaf:  | max_features:  | bootstrap: 
-    - [Report] < link >
-        - Accuracy: 
-        - Precision: 
-        - F1 Score: 
-        - Matthews Correlation Coefficient: 
-        - Cohen's Kappa: 
-        - Balanced Accuracy: 
-        - ROC-AUC (weighted ovr): 
+### Model 2
+| Attribute | Value |
+| :--- | :--- |
+| **Model** | []() |
+| **Dataset Type** | Images |
+| **Dataset Size** | z (Real: x, Fake: y) |
+| **Feature Extractor** | ResNet50 (imagenet) |
+| **Data Split** | Train: 80% (x images)<br>Test: 20% (y images) |
+| **params** | n_estimators: <br>max_depth: <br>min_samples_split: <br>min_samples_leaf: <br>max_features: <br>bootstrap:  |
+| **Report Path** | []() |
+| **Accuracy** |  |
+| **Precision** |  |
+| **F1 Score** |  |
+| **Matthews Correlation Coefficient** |  |
+| **Cohen's Kappa** |  |
+| **Balanced Accuracy** |  |
 
 **Datasets Used**
 - [Stable Diffusion Face Dataset](https://www.kaggle.com/datasets/mohannadaymansalah/stable-diffusion-dataaaaaaaaa?resource=download)
@@ -228,6 +244,8 @@ python -m trainers.XGBoostTrainer --input "path/to/features.csv" --output "(OPTI
 
 - [ffhq-dataset](https://github.com/NVlabs/ffhq-dataset) Thumbnails Only
 
+!--->
+
 -------
-> [!NOTE]
-> This project is under the MIT license but the datasets used may have different licenses and you will have to comply with them all when using any of the trained models from this repository.
+> [!IMPORTANT]
+> This project is under the [MIT license](LICENSE) but the datasets used may be under different licenses. You must comply with them all when using any of the trained models from this repository.
