@@ -24,7 +24,7 @@ python -m ui.dashboard
 - Use the showOutput tag with caution. It is not very refined and consumes a lot of RAM (depending on the number of images to and display)
 ```bash
 python -m detectors.2048FeatureDetector --input "path/to/input" --modelPath "path/to/model.joblib" --featureExtractor "(OPTIONAL) ResNet50 OR InceptionV3" --weights "(OPTIONAL) imagenet" --output "(OPTIONAL) path/to/outputDirectory" [--showOutput]
-# --modelPath is optional if "results/imageModels/ResNet50_imagenet/32kModel/best_random_forest_model.joblib" exists.
+# --modelPath is optional if "results/imageModels/ResNet50_imagenet/32kModel/randomForest/best_random_forest_model.joblib" exists.
 ```
 
 ---
@@ -170,13 +170,13 @@ python -m trainers.XGBoostTrainer --input "path/to/features.csv" --output "(OPTI
 
 | Attribute | Value |
 | :--- | :--- |
-| **Model** | [Random Forest](results/imageModels/ResNet50_imagenet/32kModel/best_random_forest_model.joblib) |
+| **Model** | [Random Forest](results/imageModels/ResNet50_imagenet/32kModel/randomForest/best_random_forest_model.joblib) |
 | **Dataset Type** | Images |
 | **Dataset Size** | 31,762 (Real: 15,364, Fake: 16,398) |
 | **Feature Extractor** | ResNet50 (imagenet) |
 | **Data Split** | Train: 80% (25,409 images)<br>Test: 20% (6,353 images) |
 | **params** | n_estimators: 150<br>max_depth: null<br>min_samples_split: 5<br>min_samples_leaf: 1<br>max_features: 0.2<br>bootstrap: false |
-| **Report Path** | [Classification Report](results/imageModels/ResNet50_imagenet/32kModel/classification_report.txt) |
+| **Report Path** | [Classification Report](results/imageModels/ResNet50_imagenet/32kModel/randomForest/classification_report.txt) |
 | **Accuracy** | 0.854 |
 | **Precision** | 0.854 |
 | **F1 Score** | 0.854 |

@@ -219,7 +219,7 @@ def main():
     parser = argparse.ArgumentParser(description="DeepVerify: AI DeepFake Verification System")
     parser.add_argument('--input', required=True, help='Path to an image, folder, or extracted CSV.')
     parser.add_argument('--output', default=None, help='Output path for predictions (auto-generated if omitted).')
-    parser.add_argument('--modelPath', default='results/imageModels/ResNet50_imagenet/32kModel/best_random_forest_model.joblib', help='Path to Random Forest joblib model.')
+    parser.add_argument('--modelPath', default='results/imageModels/ResNet50_imagenet/32kModel/randomForest/best_random_forest_model.joblib', help='Path to Random Forest joblib model.')
     parser.add_argument('--featureExtractor', default='ResNet50', choices=['ResNet50', 'InceptionV3'], help='CNN Base Extractor.')
     parser.add_argument('--weights', default='imagenet', help='Weights for CNN Extractor.')
     parser.add_argument('--showOutput', action='store_true', help='Display scrollable gallery at completion.')

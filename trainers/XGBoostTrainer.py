@@ -30,6 +30,9 @@ try:
     )
     from sklearn.calibration import calibration_curve
     import xgboost as xgb
+    
+    import torch
+    import cupy
 
     # Visualization
     import matplotlib.pyplot as plt
@@ -100,19 +103,19 @@ def parameter_setup():
     
     param_grid = {
         # Core parameters
-        'n_estimators': [100, 200, 300, 500],           # Number of trees
-        'max_depth': [3, 4, 6, 8],                      # Tree depth
+        'n_estimators': [100, 200, 300, 500],          # Number of trees
+        'max_depth': [3, 4, 6, 8, None],               # Tree depth
         'learning_rate': [0.01, 0.05, 0.1, 0.2],       # Step size
         
         # Regularization
-        'min_child_weight': [1, 3, 5],                  # Minimum child weight
+        'min_child_weight': [1, 3, 5],                 # Minimum child weight
         'gamma': [0, 0.1, 0.2],                        # Minimum loss reduction
         'reg_alpha': [0, 0.1, 0.5],                    # L1 regularization
         'reg_lambda': [1, 1.5, 2],                     # L2 regularization
         
         # Sampling
         'subsample': [0.8, 0.9, 1.0],                  # Row sampling
-        'colsample_bytree': [0.8, 0.9, 1.0],          # Feature sampling
+        'colsample_bytree': [0.8, 0.9, 1.0],           # Feature sampling
         
         # For imbalanced classes
         'scale_pos_weight': [1, 2, 3]                  # Handle class imbalance
@@ -144,21 +147,35 @@ def train_xgboost(X_train, X_test, y_train, y_test, param_combinations):
     best_score = 0
     best_model = None
     best_params = None
-
+    
+    try:
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        logger.info(f"Using device: {device}")
+    except Exception as e:
+        logger.error(f"Error checking for CUDA availability: {e}")
+        device = 'cpu'
+        logger.warning("Falling back to CPU.")
+        
     try:
         for idx, params in enumerate(param_combinations):
             n_estimators, max_depth, learning_rate, min_child_weight, gamma, reg_alpha, reg_lambda, subsample, colsample_bytree, scale_pos_weight = params
             model = xgb.XGBClassifier(
             tree_method='hist',      # CPU-optimized
-            device='cpu',            # CPU only
+            device=device,            # CPU only
             n_jobs=-1,              # Use all cores
             random_state=420,
-            eval_metric='logloss'    # Evaluation metric
+            eval_metric='logloss',    # Evaluation metric
+            verbosity=3
             )
 
             try:
                 logger.info(f"Training model #{idx+1}/{len(param_combinations)}")
-                model.fit(X_train, y_train)
+                
+                if device == 'cuda':
+                    model.fit(cupy.array(X_train), y_train)
+                else:
+                    model.fit(X_train, y_train)
+                    
             except Exception as e:
                 logger.error(f"Error training model with params {params}: {e}")
                 continue
