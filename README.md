@@ -24,8 +24,9 @@ python -m utils.filehash --input "path/to/inputFile"
 
 **To use the detector**
 - Input may be a single image, multiple images, a folder containing image(s), or a csv file containing features (headers must be ranging from "feature_0" to "feature_2047").
+- Use the showOutput tag with caution. It is not very refined and consumes a lot of RAM (depending on the number of images to and display)
 ```bash
-python -m detectors.2048FeatureDetector --input "path/to/input" --modelPath "path/to/model.joblib" --featureExtractor "(OPTIONAL) ResNet50 OR InceptionV3" --weights "(OPTIONAL) imagenet" --output "(OPTIONAL) path/to/outputDirectory"
+python -m detectors.2048FeatureDetector --input "path/to/input" --modelPath "path/to/model.joblib" --featureExtractor "(OPTIONAL) ResNet50 OR InceptionV3" --weights "(OPTIONAL) imagenet" --output "(OPTIONAL) path/to/outputDirectory" [--showOutput]
 # --modelPath is optional if "results/imageModels/ResNet50_imagenet/32kModel/best_random_forest_model.joblib" exists.
 ```
 
@@ -82,8 +83,7 @@ python -m trainers.RandomForestTrainer --input "path/to/features.csv" --output "
 -------
 
 ### TODO: (for images branch)
-- [ ] Copy ToDo to GitHub Projects
-- [ ] Fix batch processing for [2048FeaturesDetector.py](detectors/2048FeaturesDetector.py)
+- [x] Fix batch processing for [2048FeaturesDetector.py](detectors/2048FeaturesDetector.py)
 - [ ] Add resource consumption checks for different stages of [2048FeaturesDetector.py](detectors/2048FeaturesDetector.py)
 - [ ] Convert hard-coded or input based to args (for UI)
     - [ ] [insta_profile_download](utils/preprocessor/insta_profile_download.py)
@@ -105,7 +105,7 @@ python -m trainers.RandomForestTrainer --input "path/to/features.csv" --output "
             - [ ] Open Images Dataset (by Google)
             - [ ] COCO (Common Objects in Context)
     - [ ] Feature Classifiers
-        - [ ] Random Forest
+        - [x] Random Forest
         - [ ] XGBoost
         - [ ] LightGBM
         - [ ] Linear SVM
@@ -118,14 +118,13 @@ python -m trainers.RandomForestTrainer --input "path/to/features.csv" --output "
         - [ ] DBSCAN
     - [ ] Image Classifiers
         - [ ] [Custom CNN](https://www.analyticsvidhya.com/blog/2020/02/learn-image-classification-cnn-convolutional-neural-networks-3-datasets/#h-steps-to-build-an-image-classification-model-using-cnn)
-- [ ] Add time and resource consumption modules.
 - [ ] Add support for scalpel. If embedded files steganography found, this will be used to extract all files.
 - [ ] Fix all README.
 
 > [!NOTE]
 > **Args**:
 > - [filehash.py](utils/filehash.py): input
-> - [2048FeaturesDetector.py](detectors/2048FeaturesDetector.py): input, modelPath, featureExtractor (optional), weights (optional), output (optional)
+> - [2048FeaturesDetector.py](detectors/2048FeaturesDetector.py): input, modelPath, featureExtractor (optional), weights (optional), output (optional), showOutput (this is a toggle switch, don't include this flag if you don't want to view all photos with predictions)
 > - /utils/featureExtractor/
 >   - [InceptionV3_image_feature_extractor.py](/utils/featureExtractor/InceptionV3_image_feature_extractor.py): input, output (optional), weights (optional)
 >   - [ResNet50_image_feature_extractor.py](/utils/featureExtractor/ResNet50_image_feature_extractor.py): input, output (optional), weights (optional)

@@ -4,7 +4,7 @@ import sys
 from datetime import datetime
 import inspect
 
-def get_logger(console_level="WARNING", file_level="DEBUG", log_to_console=True, log_to_file=True):
+def get_logger(console_level="INFO", file_level="DEBUG", log_to_console=True, log_to_file=True):
     """
     Creates and returns a logger instance with independent levels for terminal and file storage.
     
