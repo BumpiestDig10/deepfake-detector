@@ -20,3 +20,4 @@ instaProfiles/*/*
 *.xz
 hf_token.txt
 models/*.html
+catboost_info/*

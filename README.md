@@ -91,15 +91,22 @@ python -m utils.preprocessor.insta_profile_download
 ---
 
 **To Train a Random Forest Model**
-- Make sure you check the hyperparameter grid before running.
+- Make sure you check the parameter grid before running.
 ```bash
 python -m trainers.RandomForestTrainer --input "path/to/features.csv" --output "(OPTIONAL) path/to/outputDirectory" --test_size (OPTIONAL) 0.2 --random_state (OPTIONAL) 420
 ```
 
 **To Train a XGBoost Model**
-- Make sure you check the hyperparameter grid before running.
+- Make sure you check the parameter grid before running.
 ```bash
 python -m trainers.XGBoostTrainer --input "path/to/features.csv" --output "(OPTIONAL) path/to/outputDirectory" --test_size (OPTIONAL) 0.2 --random_state (OPTIONAL) 420
+```
+
+**To Train a CatBoost Model**
+- Make sure you check the parameter grid before running.
+- Some issues with keyboardInterrupt.
+```bash
+python -m trainers.CatBoostTrainer --input "path/to/features.csv" --output "(OPTIONAL) path/to/outputDirectory" --test_size (OPTIONAL) 0.2 --random_state (OPTIONAL) 420
 ```
 
 -------
@@ -129,6 +136,8 @@ python -m trainers.XGBoostTrainer --input "path/to/features.csv" --output "(OPTI
     - [ ] Feature Classifiers
         - [x] Random Forest
         - [x] XGBoost
+        - [x] CatBoost
+            - [ ] KeyboardInterrupt errors.
         - [ ] LightGBM
         - [ ] Linear SVM
         - [ ] Regularized Logistic Regression
@@ -159,6 +168,7 @@ python -m trainers.XGBoostTrainer --input "path/to/features.csv" --output "(OPTI
 > - /trainers/
 >   - [RandomForestTrainer.py](/trainers/RandomForestTrainer.py): input, output (optional), test_size (optional), random_state (optional)
 >   - [XGBoostTrainer.py](/trainers/XGBoostTrainer.py): input, output (optional), test_size (optional), random_state (optional)
+>   - [CatBoostTrainer.py](/trainers/CatBoostTrainer.py): input, output (optional), test_size (optional), random_state (optional)
 >
 > **Labels**:
 > - Real = 1
@@ -176,7 +186,7 @@ python -m trainers.XGBoostTrainer --input "path/to/features.csv" --output "(OPTI
 | **Feature Extractor** | ResNet50 (imagenet) |
 | **Data Split** | Train: 80% (25,409 images)<br>Test: 20% (6,353 images) |
 | **params** | n_estimators: 150<br>max_depth: null<br>min_samples_split: 5<br>min_samples_leaf: 1<br>max_features: 0.2<br>bootstrap: false |
-| **Report Path** | [Classification Report](results/imageModels/ResNet50_imagenet/32kModel/randomForest/classification_report.txt) |
+| **Report Path** | [Classification Report](results/imageModels/ResNet50_imagenet/32kModel/randomForest/classification_report.txt), [Full Results](results/imageModels/ResNet50_imagenet/32kModel/randomForest/random_forest_results.json) |
 | **Accuracy** | 0.854 |
 | **Precision** | 0.854 |
 | **F1 Score** | 0.854 |
