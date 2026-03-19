@@ -11,16 +11,13 @@ $ pip install -r allRequirements.txt
 
 -------
 
-**To run the Deepfake Training Orchestrator** (Dashboard with all the tools)
+**To run the Deepfake Training Orchestrator** (UI Dashboard with all the tools)
 - On the dashboard, paramaeters for all tools will have "Browse Files" and "Browse Folders" buttons, be smart about what you should actually input.
 ```bash
 python -m ui.dashboard
 ```
 
-**To calculate SHA256 hash of a file**
-```bash
-python -m utils.filehash --input "path/to/inputFile"
-```
+---
 
 **To use the detector**
 - Input may be a single image, multiple images, a folder containing image(s), or a csv file containing features (headers must be ranging from "feature_0" to "feature_2047").
@@ -29,6 +26,15 @@ python -m utils.filehash --input "path/to/inputFile"
 python -m detectors.2048FeatureDetector --input "path/to/input" --modelPath "path/to/model.joblib" --featureExtractor "(OPTIONAL) ResNet50 OR InceptionV3" --weights "(OPTIONAL) imagenet" --output "(OPTIONAL) path/to/outputDirectory" [--showOutput]
 # --modelPath is optional if "results/imageModels/ResNet50_imagenet/32kModel/best_random_forest_model.joblib" exists.
 ```
+
+---
+
+**To calculate SHA256 hash of a file**
+```bash
+python -m utils.filehash --input "path/to/inputFile"
+```
+
+---
 
 **To run the InceptionV3 Feature Extractor**
 ```bash
@@ -40,10 +46,14 @@ python -m utils.featureExtractor.InceptionV3_image_feature_extractor --input "re
 python -m utils.featureExtractor.ResNet50_image_feature_extractor --input "relativePath/to/input_directory" --output "(OPTIONAL) relativePath/to/output_file" --weights "(OPTIONAL) imagenet"
 ```
 
+---
+
 **To run the Metadata Parser**
 ```bash
 python -m utils.metadata.metadata_parser --input "relativePath/to/input_directory" --output "(OPTIONAL) relativePath/to/output_file"
 ```
+
+---
 
 **To download image datasets from Hugging Face**
 ```bash
@@ -68,6 +78,8 @@ python -m utils.preprocessor.insta_profile_download
 - Select the folder with all files of the extension. Default should be utils/preprocessor/reddit_downloader.
 ```
 
+---
+
 **To find and delete duplicate files in a particular directory** (Windows-only)
 - Update the target folder in [duplicate_finder.ps1](utils/preprocessor/duplicate_finder.ps1).
 - Execute the script in powershell.
@@ -76,10 +88,20 @@ python -m utils.preprocessor.insta_profile_download
     $ ./duplicate_finder.ps1                    # if CWD = utils/preprocessor/
     ```
 
+---
+
 **To Train a Random Forest Model**
+- Make sure you check the hyperparameter grid before running.
 ```bash
 python -m trainers.RandomForestTrainer --input "path/to/features.csv" --output "(OPTIONAL) path/to/outputDirectory" --test_size (OPTIONAL) 0.2 --random_state (OPTIONAL) 420
 ```
+
+**To Train a XGBoost Model**
+- Make sure you check the hyperparameter grid before running.
+```bash
+python -m trainers.XGBoostTrainer --input "path/to/features.csv" --output "(OPTIONAL) path/to/outputDirectory" --test_size (OPTIONAL) 0.2 --random_state (OPTIONAL) 420
+```
+
 -------
 
 ### TODO: (for images branch)
@@ -106,7 +128,7 @@ python -m trainers.RandomForestTrainer --input "path/to/features.csv" --output "
             - [ ] COCO (Common Objects in Context)
     - [ ] Feature Classifiers
         - [x] Random Forest
-        - [ ] XGBoost
+        - [x] XGBoost
         - [ ] LightGBM
         - [ ] Linear SVM
         - [ ] Regularized Logistic Regression
@@ -136,6 +158,7 @@ python -m trainers.RandomForestTrainer --input "path/to/features.csv" --output "
 >   - [real_fake_csv_merger.py](/utils/preprocessor/real_fake_csv_merger.py): real, fake, output (optional)
 > - /trainers/
 >   - [RandomForestTrainer.py](/trainers/RandomForestTrainer.py): input, output (optional), test_size (optional), random_state (optional)
+>   - [XGBoostTrainer.py](/trainers/XGBoostTrainer.py): input, output (optional), test_size (optional), random_state (optional)
 >
 > **Labels**:
 > - Real = 1
