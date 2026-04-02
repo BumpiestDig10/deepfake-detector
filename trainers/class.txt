@@ -1,0 +1,5 @@
+real --> 1
+fake --> 2
+
+real --> 1
+fake --> 0

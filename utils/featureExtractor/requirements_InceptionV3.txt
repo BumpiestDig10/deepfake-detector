@@ -1,0 +1,5 @@
+# Requirements for Inception V3 Feature Extraction Tool
+tensorflow>=2.8.0
+pillow>=8.0.0
+numpy>=1.21.0
+psutil>=5.8.0
