@@ -103,7 +103,7 @@ def parameter_setup():
     
     param_grid = {
         # Core parameters
-        'n_estimators': [100, 200, 300, 500],          # Number of trees
+        'n_estimators': [300, 500],          # Number of trees
         'max_depth': [3, 4, 6, 8, None],               # Tree depth
         'learning_rate': [0.01, 0.05, 0.1, 0.2],       # Step size
         
@@ -158,13 +158,12 @@ def train_xgboost(X_train, X_test, y_train, y_test, param_combinations):
         
     try:
         for idx, params in enumerate(param_combinations):
-            n_estimators, max_depth, learning_rate, min_child_weight, gamma, reg_alpha, reg_lambda, subsample, colsample_bytree, scale_pos_weight = params
             model = xgb.XGBClassifier(
-            tree_method='hist',      # CPU-optimized
-            device=device,            # CPU only
-            n_jobs=-1,              # Use all cores
+            tree_method='gpu_hist' if device == 'cuda' else 'hist',
+            device=device,
+            n_jobs=-1,  # Use all cores
             random_state=420,
-            eval_metric='logloss',    # Evaluation metric
+            eval_metric='logloss',
             verbosity=3
             )
 

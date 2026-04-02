@@ -112,6 +112,7 @@ def parameter_setup():
         # 'subsample': [0.8, 0.9, 1.0],  # Essential for high-dimensional data
         # 'colsample_bylevel': [0.8, 0.9, 1.0],  # Feature sampling
         'min_data_in_leaf': [1, 5, 10],  # Prevent overfitting
+        # 'fold_len_multiplier': [5],   # Default: 2
     }
     
     logger.debug(f"Parameter grid: {param_grid}")
@@ -160,7 +161,7 @@ def train_catboost(X_train, X_test, y_train, y_test, param_combinations):
                 logger.info(f"Training model #{idx+1}/{len(param_combinations)} with params: {params}")
                 model.fit(X_train, y_train)
             except Exception as e:
-                logger.error(f"Error training model with params {params}: {e}")
+                logger.error(f"Error training model #{idx+1}/{len(param_combinations)} with params {params}: {e}")
                 continue
             
             y_pred = model.predict(X_test)
@@ -174,15 +175,15 @@ def train_catboost(X_train, X_test, y_train, y_test, param_combinations):
                 'f1_score': f1
             })
             
-            logger.info(f"[{idx+1}/{len(param_combinations)}]\tAccuracy: {accuracy_score(y_test, y_pred):.4f} | Precision: {precision_score(y_test, y_pred, average='weighted'):.4f} | Recall: {recall_score(y_test, y_pred, average='weighted'):.4f} | F1 Score: {f1:.4f} | Params: {params}")
+            logger.info(f"[{idx+1}/{len(param_combinations)}]\tAccuracy: {accuracy_score(y_test, y_pred):.4f} | Precision: {precision_score(y_test, y_pred, average='weighted'):.4f} | Recall: {recall_score(y_test, y_pred, average='weighted'):.4f} | F1 Score: {f1:.4f}")
 
             if f1 > best_score:
                 best_score = f1
                 best_model = model
                 best_params = params
-                logger.info(f"Best Model Updated | F1: {best_score}")
+                logger.info(f"Best Model Updated | F1: {best_score} | Params: {best_params}")
             else:
-                logger.debug(f"No improvement. Current best F1: {best_score} for params: {best_params}")
+                logger.debug(f"No improvement. Current best F1: {best_score}")
     except Exception as e:
         logger.error(f"Error during training loop: {e}")
     finally:

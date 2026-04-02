@@ -137,7 +137,8 @@ python -m trainers.CatBoostTrainer --input "path/to/features.csv" --output "(OPT
         - [x] Random Forest
         - [x] XGBoost
         - [x] CatBoost
-            - [ ] KeyboardInterrupt errors.
+            - [ ] KeyboardInterrupt errors
+            - [ ] Need to check for memory constraints
         - [ ] LightGBM
         - [ ] Linear SVM
         - [ ] Regularized Logistic Regression
@@ -178,21 +179,20 @@ python -m trainers.CatBoostTrainer --input "path/to/features.csv" --output "(OPT
 
 ### 32k Models
 
-| Attribute | Value |
-| :--- | :--- |
-| **Model** | [Random Forest](results/imageModels/ResNet50_imagenet/32kModel/randomForest/best_random_forest_model.joblib) |
-| **Dataset Type** | Images |
-| **Dataset Size** | 31,762 (Real: 15,364, Fake: 16,398) |
-| **Feature Extractor** | ResNet50 (imagenet) |
-| **Data Split** | Train: 80% (25,409 images)<br>Test: 20% (6,353 images) |
-| **params** | n_estimators: 150<br>max_depth: null<br>min_samples_split: 5<br>min_samples_leaf: 1<br>max_features: 0.2<br>bootstrap: false |
-| **Report Path** | [Classification Report](results/imageModels/ResNet50_imagenet/32kModel/randomForest/classification_report.txt), [Full Results](results/imageModels/ResNet50_imagenet/32kModel/randomForest/random_forest_results.json) |
-| **Accuracy** | 0.854 |
-| **Precision** | 0.854 |
-| **F1 Score** | 0.854 |
-| **Matthews Correlation Coefficient** | 0.7070566271285679 |
-| **Cohen's Kappa** | 0.7070160654228586 |
-| **Balanced Accuracy** | 0.8536314517473194 |
+| **Model** | [Random Forest](results/imageModels/ResNet50_imagenet/32kModel/randomForest/best_random_forest_model.joblib) | [XGBoost](results/imageModels/ResNet50_imagenet/32kModel/xgboost/best_xgboost_model.joblib) | 
+| :--- | :--- | :--- |
+| **Dataset Type** | Images | Images |
+| **Dataset Size** | Total: 31,762<br>Real: 15,364<br>Fake: 16,398 | Total: 31,762<br>Real: 15,364<br>Fake: 16,398 |
+| **Feature Extractor** | ResNet50 (imagenet) | ResNet50 (imagenet) |
+| **Data Split** | Train: 80% (25,409 images)<br>Test: 20% (6,353 images) | Train: 80% (25,409 images)<br>Test: 20% (6,353 images) |
+| **params** | n_estimators: 150<br>max_depth: null<br>min_samples_split: 5<br>min_samples_leaf: 1<br>max_features: 0.2<br>bootstrap: false | n_estimators: 100<br>max_depth: 3<br>learning_rate: 0.01<br>min_child_weight: 1<br>gamma: 0<br>reg_alpha: 0<br>reg_lambda: 1<br>subsample: 0.8<br>colsample_bytree: 0.8<br>scale_pos_weight: 1 |
+| **Report Path** | [Classification Report](results/imageModels/ResNet50_imagenet/32kModel/randomForest/classification_report.txt) \| [Full Results](results/imageModels/ResNet50_imagenet/32kModel/randomForest/random_forest_results.json) | [Classification Report](results/imageModels/ResNet50_imagenet/32kModel/xgboost/classification_report.txt) \| [Full Results](results/imageModels/ResNet50_imagenet/32kModel/xgboost/xgboost_results.json) |
+| **Accuracy** | 0.854 | 0.869 |
+| **Precision** | 0.854 | 0.869 |
+| **F1 Score** | 0.854 | 0.869 |
+| **Matthews Correlation Coefficient** | 0.7070566271285679 | 0.7389886538917796 |
+| **Cohen's Kappa** | 0.7070160654228586 | 0.7388856764484775 |
+| **Balanced Accuracy** | 0.8536314517473194 | 0.8696438988673973 |
 
 <!--
 - Model Type: Random Forest
