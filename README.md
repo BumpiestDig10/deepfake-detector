@@ -133,7 +133,10 @@ python -m trainers.CatBoostTrainer --input "path/to/features.csv" --output "(OPT
             - [ ] imagenet
             - [ ] Open Images Dataset (by Google)
             - [ ] COCO (Common Objects in Context)
-    - [ ] Feature Classifiers
+        - [ ] Qwen3-VL (To extract text description of images)
+            - [ ] Detailed image description derived from image
+            - [ ] Analysis of the detailed image description
+    - [ ] Feature Classifiers (Micro Learning)
         - [x] Random Forest
         - [x] XGBoost
         - [x] CatBoost
@@ -143,14 +146,14 @@ python -m trainers.CatBoostTrainer --input "path/to/features.csv" --output "(OPT
         - [ ] Linear SVM
         - [ ] Regularized Logistic Regression
         - [ ] Custom Neural Network
-    - [ ] Feature Clustering (with Principal Component Analysis)
+    - [ ] Feature Clustering (with Principal Component Analysis) - **Doesn't seem very useful** - curves will be very similar for highly realistic deepfakes
         - [ ] K Means Clustering
         - [ ] Gaussian Mixture Models
         - [ ] Hierarchical Clustering
         - [ ] DBSCAN
     - [ ] Image Classifiers
         - [ ] [Custom CNN](https://www.analyticsvidhya.com/blog/2020/02/learn-image-classification-cnn-convolutional-neural-networks-3-datasets/#h-steps-to-build-an-image-classification-model-using-cnn)
-- [ ] Add support for scalpel. If embedded files steganography found, this will be used to extract all files.
+- [ ] Add support for scalpel. If embedded files (steganography) found, this will be used to extract all files.
 - [ ] Fix all README.
 
 > [!NOTE]
