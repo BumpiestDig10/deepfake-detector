@@ -1,5 +1,5 @@
 # Define the folder to search (change this to your target directory)
-$targetFolder = "E:\deepfake-detector\instaProfiles\photos"
+$targetFolder = Read-Host "Enter the path to the folder you want to scan for duplicates"
 
 Write-Host "Scanning for duplicate files in: $targetFolder"
 
