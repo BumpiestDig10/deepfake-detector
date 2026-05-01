@@ -142,11 +142,16 @@ def get_image_files(directory: str) -> List[str]:
     directory_path = Path(directory)
     if not directory_path.exists():
         raise ValueError(f"Directory does not exist: {directory}")
+    
+    i = 1
 
     for file_path in directory_path.rglob('*'):
         if file_path.is_file() and file_path.suffix.lower() in image_extensions:
+            logger.debug(f"Found image file #{i}: {file_path}")
             image_files.append(str(file_path))
-
+            i += 1
+            
+    logger.debug("Sorting image files...")
     return sorted(image_files)
 
 
