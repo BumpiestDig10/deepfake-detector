@@ -21,3 +21,4 @@ instaProfiles/*/*
 hf_token.txt
 models/*.html
 catboost_info/*
+models/

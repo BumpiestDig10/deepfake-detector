@@ -24,7 +24,7 @@ python -m ui.dashboard
 - Use the showOutput tag with caution. It is not very refined and consumes a lot of RAM (depending on the number of images to and display)
 ```bash
 python -m detectors.2048FeatureDetector --input "path/to/input" --modelPath "path/to/model.joblib" --featureExtractor "(OPTIONAL) ResNet50 OR InceptionV3" --weights "(OPTIONAL) imagenet" --output "(OPTIONAL) path/to/outputDirectory" [--showOutput]
-# --modelPath is optional if "results/imageModels/ResNet50_imagenet/32kModel/randomForest/best_random_forest_model.joblib" exists.
+# --modelPath is optional if "results/training/ResNet50_imagenet/32kModel/randomForest/best_random_forest_model.joblib" exists.
 ```
 
 ---
@@ -146,11 +146,13 @@ python -m trainers.CatBoostTrainer --input "path/to/features.csv" --output "(OPT
         - [ ] Linear SVM
         - [ ] Regularized Logistic Regression
         - [ ] Custom Neural Network
+    <!--
     - [ ] Feature Clustering (with Principal Component Analysis) - **Doesn't seem very useful** - curves will be very similar for highly realistic deepfakes
         - [ ] K Means Clustering
         - [ ] Gaussian Mixture Models
         - [ ] Hierarchical Clustering
         - [ ] DBSCAN
+    -->
     - [ ] Image Classifiers
         - [ ] [Custom CNN](https://www.analyticsvidhya.com/blog/2020/02/learn-image-classification-cnn-convolutional-neural-networks-3-datasets/#h-steps-to-build-an-image-classification-model-using-cnn)
 - [ ] Add support for scalpel. If embedded files (steganography) found, this will be used to extract all files.
@@ -182,14 +184,14 @@ python -m trainers.CatBoostTrainer --input "path/to/features.csv" --output "(OPT
 
 ### 32k Models
 
-| **Model** | [Random Forest](results/imageModels/ResNet50_imagenet/32kModel/randomForest/best_random_forest_model.joblib) | [XGBoost](results/imageModels/ResNet50_imagenet/32kModel/xgboost/best_xgboost_model.joblib) | 
+| **Model** | Random Forest | XGBoost | 
 | :--- | :--- | :--- |
 | **Dataset Type** | Images | Images |
 | **Dataset Size** | Total: 31,762<br>Real: 15,364<br>Fake: 16,398 | Total: 31,762<br>Real: 15,364<br>Fake: 16,398 |
 | **Feature Extractor** | ResNet50 (imagenet) | ResNet50 (imagenet) |
 | **Data Split** | Train: 80% (25,409 images)<br>Test: 20% (6,353 images) | Train: 80% (25,409 images)<br>Test: 20% (6,353 images) |
 | **params** | n_estimators: 150<br>max_depth: null<br>min_samples_split: 5<br>min_samples_leaf: 1<br>max_features: 0.2<br>bootstrap: false | n_estimators: 100<br>max_depth: 3<br>learning_rate: 0.01<br>min_child_weight: 1<br>gamma: 0<br>reg_alpha: 0<br>reg_lambda: 1<br>subsample: 0.8<br>colsample_bytree: 0.8<br>scale_pos_weight: 1 |
-| **Report Path** | [Classification Report](results/imageModels/ResNet50_imagenet/32kModel/randomForest/classification_report.txt) \| [Full Results](results/imageModels/ResNet50_imagenet/32kModel/randomForest/random_forest_results.json) | [Classification Report](results/imageModels/ResNet50_imagenet/32kModel/xgboost/classification_report.txt) \| [Full Results](results/imageModels/ResNet50_imagenet/32kModel/xgboost/xgboost_results.json) |
+| **Report Path** | [Classification Report](results/training/ResNet50_imagenet/32kModel/randomForest/classification_report.txt) \| [Full Results](results/training/ResNet50_imagenet/32kModel/randomForest/random_forest_results.json) | [Classification Report](results/training/ResNet50_imagenet/32kModel/xgboost/classification_report.txt) \| [Full Results](results/training/ResNet50_imagenet/32kModel/xgboost/xgboost_results.json) |
 | **Accuracy** | 0.854 | 0.869 |
 | **Precision** | 0.854 | 0.869 |
 | **F1 Score** | 0.854 | 0.869 |
@@ -208,9 +210,9 @@ python -m trainers.CatBoostTrainer --input "path/to/features.csv" --output "(OPT
     - Train: 80% (25409 images)
     - Test: 20% (6353 images)
 
-- **[Best Model](results/imageModels/ResNet50_imagenet/32kModel/best_random_forest_model.joblib)**
+- **[Best Model](results/training/ResNet50_imagenet/32kModel/best_random_forest_model.joblib)**
     - n_estimators: 150 | max_depth: null | min_samples_split: 5 | min_samples_leaf: 1 | max_features: 0.2 | bootstrap: false
-    - [Report](results/imageModels/ResNet50_imagenet/32kModel/classification_report.txt)
+    - [Report](results/training/ResNet50_imagenet/32kModel/classification_report.txt)
         - Accuracy: 0.854
         - Precision: 0.854
         - F1 Score: 0.854
@@ -225,26 +227,27 @@ python -m trainers.CatBoostTrainer --input "path/to/features.csv" --output "(OPT
 - [Fake-Vs-Real-Faces (Hard)](https://www.kaggle.com/datasets/hamzaboulahia/hardfakevsrealfaces)
 - Images scraped from Instagram and Reddit
 
-<!---
+### 290k Model
 
-### Model 2
-| Attribute | Value |
+| **Model** | [Random Forest](results/training/ResNet50_imagenet/290kModel/randomForest/best_random_forest_model.joblib) |
 | :--- | :--- |
-| **Model** | []() |
 | **Dataset Type** | Images |
 | **Dataset Size** | z (Real: x, Fake: y) |
 | **Feature Extractor** | ResNet50 (imagenet) |
 | **Data Split** | Train: 80% (x images)<br>Test: 20% (y images) |
-| **params** | n_estimators: <br>max_depth: <br>min_samples_split: <br>min_samples_leaf: <br>max_features: <br>bootstrap:  |
-| **Report Path** | []() |
-| **Accuracy** |  |
-| **Precision** |  |
-| **F1 Score** |  |
-| **Matthews Correlation Coefficient** |  |
-| **Cohen's Kappa** |  |
-| **Balanced Accuracy** |  |
+| **params** | n_estimators: 200<br>max_depth: null<br>min_samples_split: 5<br>min_samples_leaf: 1<br>max_features: 0.4<br>bootstrap: false |
+| **Report Path** | [Classification Report](results/training/ResNet50_imagenet/290kModel/randomForest/classification_report.txt) \| [Full Results](results/training/ResNet50_imagenet/290kModel/randomForest/random_forest_results.json) |
+| **Accuracy** | 0.971 |
+| **Precision** | 0.971 |
+| **F1 Score** | 0.971 |
+| **Matthews Correlation Coefficient** | 0.9412332820021817 |
+| **Cohen's Kappa** | 0.9410648317279611 |
+| **Balanced Accuracy** | 0.9695813618569948 |
 
 **Datasets Used**
+- [JamieWithofs/Deepfake-and-real-images-4](https://huggingface.co/datasets/JamieWithofs/Deepfake-and-real-images-4)
+- [StyleGan-StyleGan2 Deepfake Face Images](https://www.kaggle.com/datasets/kshitizbhargava/deepfake-face-images)
+- [Fake-Vs-Real-Faces (Hard)](https://www.kaggle.com/datasets/hamzaboulahia/hardfakevsrealfaces)
 - [Stable Diffusion Face Dataset](https://www.kaggle.com/datasets/mohannadaymansalah/stable-diffusion-dataaaaaaaaa?resource=download)
 - [metfaces-dataset](https://github.com/NVlabs/metfaces-dataset)
 - [Human Images Dataset - Men and Women](https://www.kaggle.com/datasets/snmahsa/human-images-dataset-men-and-women)
@@ -254,10 +257,8 @@ python -m trainers.CatBoostTrainer --input "path/to/features.csv" --output "(OPT
 - [CelebaHQ](https://github.com/tkarras/progressive_growing_of_gans)
 - [SSHQ-1.0](https://github.com/stylegan-human/StyleGAN-Human) Password: StylisH-HumanS-hq_1.0
 - [SFHQ-T2I: Synthetic Faces from Text 2 Image models](https://www.kaggle.com/datasets/selfishgene/sfhq-t2i-synthetic-faces-from-text-2-image-models)
-
 - [ffhq-dataset](https://github.com/NVlabs/ffhq-dataset) Thumbnails Only
-
-!--->
+- Images scraped from Instagram and Reddit
 
 -------
 > [!IMPORTANT]
